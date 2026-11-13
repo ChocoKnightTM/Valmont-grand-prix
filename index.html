@@ -1021,8 +1021,40 @@ function netFrame(dt){
 
 /* ================= Audio ================= */
 var AC=null, master=null, osc1,osc2,osc3,engGain,engFilt,sqGain,windGain;
+var SONS={}, moteur=null, musiqueGain=null, musique=null;
+var SON_FICHIERS={boost:'sons/boost.mp3', choc:'sons/choc.mp3', feu:'sons/feu.mp3',
+  depart:'sons/depart.mp3', arrivee:'sons/arrivee.mp3', menu:'sons/menu.mp3'};
+
+function chargerSons(){
+  Object.keys(SON_FICHIERS).forEach(function(nom){
+    fetch(SON_FICHIERS[nom])
+      .then(function(r){ return r.arrayBuffer(); })
+      .then(function(d){ return AC.decodeAudioData(d); })
+      .then(function(buf){ SONS[nom]=buf; })
+      .catch(function(){ console.warn('Son introuvable : '+SON_FICHIERS[nom]); });
+  });
+}
+
+/* Joue un son chargé. Renvoie false s'il n'est pas (encore) disponible. */
+function jouer(nom, volume, vitesse){
+  if(!AC||!SONS[nom]) return false;
+  var src=AC.createBufferSource(), g=AC.createGain();
+  src.buffer=SONS[nom];
+  src.playbackRate.value=vitesse||1;
+  g.gain.value=(volume==null)?1:volume;
+  src.connect(g); g.connect(master); src.start();
+  return true;
+}
+
+function demarrerMusique(){
+  musique=new Audio('sons/musique.mp3'); musique.loop=true;
+  musique.onerror=function(){ console.warn('Musique introuvable ou illisible : sons/musique.mp3'); };
+  musiqueGain=AC.createGain(); musiqueGain.gain.value=0.4;
+  AC.createMediaElementSource(musique).connect(musiqueGain); musiqueGain.connect(master);
+  musique.play().catch(function(){});
+}
 function initAudio(){
-  if(AC){ if(AC.state==='suspended') AC.resume(); return; }
+  if(AC){ if(AC.state==='suspended') AC.resume(); if(musique&&musique.paused) musique.play().catch(function(){}); return; }
   try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; return; }
   master=AC.createGain(); master.gain.value=opt.sound?0.5:0; master.connect(AC.destination);
   engFilt=AC.createBiquadFilter(); engFilt.type='lowpass'; engFilt.frequency.value=600; engFilt.Q.value=1.2;
@@ -1034,11 +1066,23 @@ function initAudio(){
   var buf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate), d=buf.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1;
   var n1=AC.createBufferSource(); n1.buffer=buf; n1.loop=true; var bp=AC.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1500; bp.Q.value=5; sqGain=AC.createGain(); sqGain.gain.value=0; n1.connect(bp); bp.connect(sqGain); sqGain.connect(master); n1.start();
   var n2=AC.createBufferSource(); n2.buffer=buf; n2.loop=true; var lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=500; windGain=AC.createGain(); windGain.gain.value=0; n2.connect(lp); lp.connect(windGain); windGain.connect(master); n2.start();
+  chargerSons();
+  demarrerMusique();
+  fetch('sons/moteur.mp3').then(function(r){ return r.arrayBuffer(); })
+    .then(function(d){ return AC.decodeAudioData(d); })
+    .then(function(buf){
+      moteur=AC.createBufferSource(); moteur.buffer=buf; moteur.loop=true;
+      moteur.connect(engFilt); moteur.start();
+      osc1.disconnect(); osc2.disconnect(); osc3.disconnect();   /* coupe l'ancien moteur synthétique */
+    }).catch(function(){});
 }
+window.addEventListener('pointerdown',function(){ initAudio(); });
 function blip(freq,dur,vol){ if(!AC||!master) return; try{ var o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime; o.type='square'; o.frequency.value=freq; g.gain.setValueAtTime(vol||0.08,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.05); o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.06); }catch(e){} }
 function updateAudio(rpm,thr,speed,slip,boosting){
   if(!AC) return; var t=AC.currentTime, quiet=(state==='paused'||state==='results');
+  if(musiqueGain) musiqueGain.gain.setTargetAtTime(state==='menu'?0.45:0.2, t, 0.5);
   var f=38+rpm/7500*170;
+  if(moteur) moteur.playbackRate.setTargetAtTime(0.6+rpm/7500*1.4, t, 0.03);
   osc1.frequency.setTargetAtTime(f,t,0.03); osc2.frequency.setTargetAtTime(f*0.5,t,0.03); osc3.frequency.setTargetAtTime(f*1.503,t,0.03);
   engFilt.frequency.setTargetAtTime(350+rpm*0.22+thr*1400+(boosting?900:0),t,0.05);
   engGain.gain.setTargetAtTime(quiet?0:(state==='menu'?0.04:0.10+thr*0.14),t,0.06);
