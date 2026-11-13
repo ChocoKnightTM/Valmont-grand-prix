@@ -274,7 +274,7 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
 <script>
 (function(){
 'use strict';
@@ -754,7 +754,7 @@ function setupRace(){
 }
 
 /* ================= Input ================= */
-var K={}, pad={steer:0,thr:0,brk:0,hand:false,look:false,nitro:false,name:''}, padPrev={}, padBlocked=false, trigSeen=[false,false], rumbleT=0, padRef=null;
+var K={}, pad={steer:0,thr:0,brk:0,hand:false,look:false,nitro:false,name:''}, padPrev={}, padBlocked=false, trigSeen={}, rumbleT=0, padRef=null;
 function act(name){
   if(curScreen){
     if(name==='up') moveFocus(-1); else if(name==='down') moveFocus(1);
@@ -781,32 +781,38 @@ window.addEventListener('keyup',function(e){ K[e.code]=false; });
 window.addEventListener('blur',function(){ K={}; if(!online&&(state==='race'||state==='countdown')) pauseGame(); });
 window.addEventListener('gamepadconnected',function(){ pollPad(); });
 
-function pollPad(){
-  var pads_=null, p=null;
-  try{ pads_=navigator.getGamepads?navigator.getGamepads():[]; }catch(e){ padBlocked=true; }
-  if(pads_) for(var i=0;i<pads_.length;i++){ if(pads_[i]&&pads_[i].connected){ p=pads_[i]; break; } }
-  padRef=p;
-  var pill=$('padPill');
-  if(!p){ pad.steer=0; pad.thr=0; pad.brk=0; pad.hand=false; pad.look=false; pad.nitro=false;
-    if(pad.name!==''||pill.dataset.s!=='0'){ pad.name=''; pill.dataset.s='0'; pill.className='pill';
-      pill.textContent=padBlocked?"Manette bloquée dans cette vue : ouvre la page dans son propre onglet":"Manette : appuie sur un bouton pour l'activer"; }
-    return; }
-  if(pad.name!==p.id){ pad.name=p.id; pill.dataset.s='1'; pill.className='pill ok';
-    var nm=/dualsense|0ce6|0df2/i.test(p.id)?'DualSense':(/054c|wireless controller/i.test(p.id)?'Manette PlayStation':'Manette');
-    pill.textContent=nm+' connectée'; }
-  var std=(p.mapping==='standard');
-  var B=function(i){ return p.buttons[i]?p.buttons[i].value:0; }, PR=function(i){ return !!(p.buttons[i]&&p.buttons[i].pressed); };
-  var sx=p.axes[0]||0, sy=p.axes[1]||0, dz=0.08;
-  sx=Math.abs(sx)<dz?0:(sx-Math.sign(sx)*dz)/(1-dz);
-  pad.steer=-Math.sign(sx)*Math.pow(Math.abs(sx),1.5);
+var padSeen=false, padActive=-1, padLabel='';
+function readPad(p){
+  var ps=/054c|dualsense|dualshock|wireless controller/i.test(p.id), std=(p.mapping==='standard');
+  var B=function(i){ return p.buttons[i]?(p.buttons[i].value||0):0; }, PR=function(i){ return !!(p.buttons[i]&&(p.buttons[i].pressed||p.buttons[i].value>0.5)); };
   var thr=B(7), brk=B(6);
-  if(!std&&p.axes.length>=5){
-    [3,4].forEach(function(ax,k){ var v=p.axes[ax]; if(v<=-0.9) trigSeen[k]=true; if(trigSeen[k]){ var t=clamp((v+1)/2,0,1); if(k===0) brk=Math.max(brk,t); else thr=Math.max(thr,t); } });
-  }
-  pad.thr=thr>0.03?thr:0; pad.brk=brk>0.03?brk:0;
-  var X=std?0:1, O=std?1:2, SQ=std?2:0, TRI=3;
-  pad.hand=PR(X); pad.look=PR(O); pad.nitro=PR(5);
-  var now={ok:PR(X),back:PR(O),reset:PR(SQ),cam:PR(TRI),pause:PR(9),up:PR(12)||sy<-0.6,down:PR(13)||sy>0.6,left:PR(14)||(p.axes[0]||0)<-0.6,right:PR(15)||(p.axes[0]||0)>0.6};
+  if(!std&&ps&&p.axes.length>=5){ [3,4].forEach(function(ax,k){ var key=p.index+'_'+k, v=p.axes[ax]; if(v<=-0.9) trigSeen[key]=true; if(trigSeen[key]){ var t=clamp((v+1)/2,0,1); if(k===0) brk=Math.max(brk,t); else thr=Math.max(thr,t); } }); }
+  var X=std?0:(ps?1:0), O=std?1:(ps?2:1), SQ=std?2:(ps?0:2);
+  var r={sx:p.axes[0]||0,sy:p.axes[1]||0,thr:thr,brk:brk,ok:PR(X),back:PR(O),reset:PR(SQ),cam:PR(3),nitro:PR(5),pause:PR(9),up:PR(12),down:PR(13),left:PR(14),right:PR(15)};
+  r.any=r.ok||r.back||r.reset||r.cam||r.nitro||r.pause||r.up||r.down||r.left||r.right||thr>0.15||brk>0.15||Math.abs(r.sx)>0.5||Math.abs(r.sy)>0.5;
+  return r;
+}
+var PADKEYS=['ok','back','reset','cam','nitro','pause','up','down','left','right'];
+function pollPad(){
+  var list=null, found=[], i;
+  try{ list=navigator.getGamepads?navigator.getGamepads():[]; }catch(e){ padBlocked=true; }
+  if(list) for(i=0;i<list.length;i++){ var g=list[i]; if(g&&g.connected!==false&&g.buttons&&g.buttons.length) found.push(g); }
+  var m={sx:0,sy:0,thr:0,brk:0};
+  found.forEach(function(p){ var r=readPad(p);
+    if(Math.abs(r.sx)>Math.abs(m.sx)) m.sx=r.sx; if(Math.abs(r.sy)>Math.abs(m.sy)) m.sy=r.sy; m.thr=Math.max(m.thr,r.thr); m.brk=Math.max(m.brk,r.brk);
+    PADKEYS.forEach(function(k){ if(r[k]) m[k]=true; });
+    if(r.any){ padSeen=true; padActive=p.index; } });
+  padRef=null; for(i=0;i<found.length;i++) if(found[i].index===padActive) padRef=found[i]; if(!padRef) padRef=found[0]||null;
+  var label, ok=false;
+  if(!padRef) label=padBlocked?"Manette bloquée dans cette vue : ouvre la page dans son propre onglet":"Manette : appuie sur un bouton pour l'activer";
+  else { var nm=/dualsense|0ce6|0df2/i.test(padRef.id)?'DualSense':(/054c|wireless controller/i.test(padRef.id)?'Manette PlayStation':'Manette');
+    ok=padSeen; label=nm+(padSeen?' connectée':" détectée, mais aucune entrée reçue : appuie sur ✕")+(found.length>1?' ('+found.length+' périphériques vus)':''); }
+  if(label!==padLabel){ padLabel=label; var pill=$('padPill'); pill.textContent=label; pill.className='pill'+(ok?' ok':''); }
+  var sx=m.sx, dz=0.08; sx=Math.abs(sx)<dz?0:(sx-Math.sign(sx)*dz)/(1-dz);
+  pad.steer=-Math.sign(sx)*Math.pow(Math.abs(sx),1.5);
+  pad.thr=m.thr>0.03?m.thr:0; pad.brk=m.brk>0.03?m.brk:0;
+  pad.hand=!!m.ok; pad.look=!!m.back; pad.nitro=!!m.nitro;
+  var now={ok:!!m.ok,back:!!m.back,reset:!!m.reset,cam:!!m.cam,pause:!!m.pause,up:!!m.up||m.sy<-0.6,down:!!m.down||m.sy>0.6,left:!!m.left||m.sx<-0.6,right:!!m.right||m.sx>0.6};
   for(var k in now){ if(now[k]&&!padPrev[k]){ initAudio(); act(k); } padPrev[k]=now[k]; }
 }
 function rumble(strong,weak,ms){
@@ -880,69 +886,71 @@ function pushPresence(){
   if(net.racing&&player){ o.rr=net.lastRid; o.p=packCar(player); if(net.host){ var b=[]; cars.forEach(function(c){ if(c.ctrl==='ai'&&c.botIdx>=0) b[c.botIdx]=packCar(c); }); o.bots=b; } }
   try{ net.room.presence(o).catch(function(){}); }catch(e){}
 }
-/* A PeerJS room with the two calls the game needs: presence(state) and onPeers(callback).
-   Star topology: every player connects to the host, and the host relays each player's state to the others. */
-var PEER_PREFIX='valmontgp-', CODE_AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+/* A relay room with the two calls the game needs: presence(state) and onPeers(callback).
+   Every player publishes its state on an MQTT topic named after the room code and listens to the others;
+   the messages travel through a public broker over a secure WebSocket, which works on networks where direct
+   browser-to-browser links fail. A player silent for 10 s is dropped. */
+var BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+var CODE_AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function newCode(){ var s=''; for(var i=0;i<5;i++) s+=CODE_AB[Math.floor(Math.random()*CODE_AB.length)]; return s; }
-function createPeerRoom(code,isHost,onReady,onFail){
-  var me=null, mine={}, others={}, conns={}, listeners=[], ready=false, dead=false, peer, timer=null;
+function createRelayRoom(code,isHost,onReady,onFail){
+  var PahoNS=window.Paho&&(window.Paho.Client?window.Paho:window.Paho.MQTT);
+  var me=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+  var topic='valmontgp/v1/'+code+'/p/', mine={}, others={}, seen={}, listeners=[], ready=false, dead=false, client=null, bi=0, timer=null, beat=null, lastSend=0, lostAt=0;
   function notify(){ if(dead) return; var list=[{peer:me,kind:'viewer',sameTab:true,presence:mine}];
     for(var id in others) list.push({peer:id,kind:'viewer',sameTab:false,presence:others[id]});
     listeners.forEach(function(f){ f({peers:list}); }); }
-  function send(c,m){ try{ if(c.open) c.send(m); }catch(e){} }
-  function broadcast(m,except){ for(var id in conns) if(id!==except) send(conns[id],m); }
-  function fail(type){ if(dead) return; dead=true; clearTimeout(timer); try{ peer.destroy(); }catch(e){} onFail(type); }
+  function publish(o){ try{ if(client&&client.isConnected()){ client.send(topic+me,JSON.stringify(o),0,false); lastSend=Date.now(); } }catch(e){} }
+  function stop(){ clearTimeout(timer); clearInterval(beat); try{ if(client&&client.isConnected()){ publish({bye:1}); client.disconnect(); } }catch(e){} client=null; }
+  function fail(type){ if(dead) return; stop(); dead=true; onFail(type); }
+  function becomeReady(){ if(ready||dead) return; ready=true; clearTimeout(timer); onReady(room); notify(); }
   var room={
-    presence:function(o){ mine=o; if(isHost) broadcast({t:'p',id:me,p:o}); else for(var k in conns) send(conns[k],{t:'p',p:o}); return Promise.resolve(); },
+    presence:function(o){ mine=o; publish(o); return Promise.resolve(); },
     onPeers:function(f){ listeners.push(f); notify(); },
-    leave:function(){ if(dead) return; dead=true; clearTimeout(timer); try{ peer.destroy(); }catch(e){} }
+    leave:function(){ if(dead) return; stop(); dead=true; }
   };
-  function wire(c){
-    c.on('open',function(){
-      if(dead) return;
-      if(isHost){
-        if(Object.keys(conns).length>=MAXCARS-1){ send(c,{t:'full'}); setTimeout(function(){ try{ c.close(); }catch(e){} },400); return; }
-        conns[c.peer]=c; send(c,{t:'p',id:me,p:mine}); for(var id in others) send(c,{t:'p',id:id,p:others[id]});
-      } else { conns[c.peer]=c; clearTimeout(timer); ready=true; onReady(room); }
-    });
-    c.on('data',function(m){
-      if(dead||!m||typeof m!=='object') return;
-      if(m.t==='p'&&m.p&&typeof m.p==='object'){
-        var id=isHost?c.peer:String(m.id);            /* the host only trusts the connection's own identity */
-        if(isHost&&!conns[id]) return;
-        others[id]=m.p; if(isHost) broadcast({t:'p',id:id,p:m.p},id);
-        notify();
-      } else if(m.t==='bye'&&!isHost){ delete others[String(m.id)]; notify(); }
-      else if(m.t==='full'&&!isHost) fail('full');
-    });
-    c.on('close',function(){
-      if(dead) return;
-      if(isHost){ if(conns[c.peer]===c){ delete conns[c.peer]; delete others[c.peer]; broadcast({t:'bye',id:c.peer}); notify(); } }
-      else fail(ready?'host-left':'peer-unavailable');
-    });
-    c.on('error',function(){});
+  function nextBroker(){ if(dead||ready) return; clearTimeout(timer); try{ if(client&&client.isConnected()) client.disconnect(); }catch(e){} client=null; bi++;
+    if(bi>=BROKERS.length){ fail(isHost?'network':'peer-unavailable'); return; } connect(); }
+  function onMessage(msg){
+    if(dead) return; var id=String(msg.destinationName||'').slice(topic.length); if(!id||id===me||id.length>24) return;
+    var o; try{ o=JSON.parse(msg.payloadString); }catch(e){ return; } if(!o||typeof o!=='object') return;
+    if(o.bye){ if(others[id]){ delete others[id]; delete seen[id]; notify(); } return; }
+    var fresh=!others[id]; others[id]=o; seen[id]=Date.now(); if(fresh) publish(mine);          /* answer a newcomer at once */
+    if(!ready&&!isHost&&o.host===true&&o.lid===code) becomeReady(); else notify();
   }
-  try{ peer=isHost?new Peer(PEER_PREFIX+code):new Peer(); }catch(e){ dead=true; onFail('browser-incompatible'); return; }
-  timer=setTimeout(function(){ if(!ready) fail('timeout'); },20000);
-  peer.on('open',function(id){ if(dead) return; me=id;
-    if(isHost){ clearTimeout(timer); ready=true; onReady(room); } else wire(peer.connect(PEER_PREFIX+code,{serialization:'json'})); });
-  if(isHost) peer.on('connection',wire);
-  peer.on('disconnected',function(){ if(!dead) setTimeout(function(){ try{ if(!dead&&peer.disconnected&&!peer.destroyed) peer.reconnect(); }catch(e){} },2000); });
-  peer.on('error',function(e){ var t=(e&&e.type)||'error';
-    if(ready&&t!=='unavailable-id'&&t!=='browser-incompatible') return;   /* once the room is up, signalling hiccups are not fatal */
-    fail(t); });
+  function subscribed(){ if(dead) return; lostAt=0; publish(mine);
+    if(ready) return;
+    if(isHost) becomeReady(); else { clearTimeout(timer); timer=setTimeout(nextBroker,4000); }   /* no host heard on this broker: try the next one */ }
+  function subscribe(){ try{ client.subscribe(topic+'+',{qos:0,onSuccess:subscribed,onFailure:function(){ if(!ready) nextBroker(); }}); }catch(e){ if(!ready) nextBroker(); } }
+  function connect(){
+    if(dead) return;
+    try{
+      client=new PahoNS.Client(BROKERS[bi],'vgp-'+me);
+      client.onMessageArrived=onMessage;
+      client.onConnectionLost=function(){ if(dead) return; if(!ready) nextBroker(); else if(!lostAt) lostAt=Date.now(); };
+      client.onConnected=function(reconnect){ if(reconnect&&!dead) subscribe(); };
+      var will=new PahoNS.Message(JSON.stringify({bye:1})); will.destinationName=topic+me; will.qos=0; will.retained=false;
+      clearTimeout(timer); timer=setTimeout(nextBroker,9000);
+      client.connect({timeout:7,keepAliveInterval:20,cleanSession:true,reconnect:true,willMessage:will,onSuccess:subscribe,onFailure:function(){ if(!ready) nextBroker(); }});
+    }catch(e){ nextBroker(); }
+  }
+  if(!PahoNS){ dead=true; setTimeout(function(){ onFail('nolib'); },0); return; }
+  beat=setInterval(function(){ if(dead) return; var now=Date.now(), ch=false;
+    if(now-lastSend>900) publish(mine);                                  /* heartbeat, so newcomers and idle lobbies stay in sync */
+    for(var id in seen) if(now-seen[id]>10000){ delete seen[id]; delete others[id]; ch=true; }
+    if(ch) notify();
+    if(ready&&lostAt&&now-lostAt>15000) fail('network');
+  },1000);
+  connect();
 }
-var NETMSG={'peer-unavailable':"Aucun salon ne correspond à ce code. Vérifie le code, et que ton ami a toujours son salon ouvert.",'host-left':"L'hôte a quitté le salon.",'full':'Ce salon est complet (8 pilotes).',
-  'timeout':"La connexion n'a pas abouti. Un des deux réseaux bloque peut-être les connexions directes : essaie un autre réseau (partage de connexion par exemple).",
-  'network':'Impossible de joindre le serveur de mise en relation. Vérifie ta connexion internet puis réessaie.','server-error':'Le serveur de mise en relation ne répond pas. Réessaie dans un instant.',
-  'browser-incompatible':"Ce navigateur ne permet pas le jeu en ligne. Essaie Chrome, Edge ou Firefox.",'nolib':"La bibliothèque réseau n'a pas pu se charger. Vérifie ta connexion puis recharge la page."};
+var NETMSG={'peer-unavailable':"Aucun salon ne correspond à ce code. Vérifie le code, et que ton ami a toujours son salon ouvert avec le jeu au premier plan.",'host-left':"L'hôte a quitté le salon.",
+  'network':'Connexion au serveur de jeu impossible ou perdue. Vérifie ta connexion internet puis réessaie.','nolib':"La bibliothèque réseau n'a pas pu se charger. Vérifie ta connexion puis recharge la page."};
 function netFail(type){ net.busy=false; leaveLobby(); net.msg=NETMSG[type]||('La connexion a été interrompue ('+type+').'); openScreen('online'); refreshOnline(); }
 function connectRoom(code,isHost,retried){
   if(net.busy||net.room) return;
-  if(typeof Peer==='undefined'){ net.msg=NETMSG.nolib; refreshOnline(); return; }
   net.busy=true; net.msg=isHost?'Création du salon…':'Connexion au salon '+code+'…'; refreshOnline();
   var tok=++net.tok;
-  createPeerRoom(code,isHost,function(room){
+  createRelayRoom(code,isHost,function(room){
     if(tok!==net.tok){ room.leave(); return; }
     net.busy=false; net.room=room; net.msg=''; net.lid=code; net.host=isHost; net.ph='lobby'; net.racing=false; net.missT=0; net.peers=[];
     if(isHost) net.cfg={tr:opt.track,laps:opt.laps,bots:2,diff:opt.diff};
@@ -950,7 +958,6 @@ function connectRoom(code,isHost,retried){
     pushPresence(); openScreen('lobby'); refreshLobby();
   },function(type){
     if(tok!==net.tok) return;
-    if(isHost&&type==='unavailable-id'&&!retried&&!net.room){ net.busy=false; connectRoom(newCode(),true,true); return; }
     net.tok++; netFail(type);
   });
 }
@@ -965,7 +972,7 @@ function netCheck(){
       if(!net.racing) net.cfg=readCfg(hp.cfg);
     }
   }
-  if(curScreen&&curScreen.id==='lobby') refreshLobby();
+  net.lobDirty=true;
 }
 function beginNetRace(){ online=true; net.racing=true; buildTrack(net.cfg.tr); startRace(); pushPresence(); }
 function backToLobby(){
@@ -998,7 +1005,8 @@ function refreshLobby(){
 }
 function netFrame(dt){
   if(!net.room) return;
-  if(net.lid&&!net.host&&curScreen&&curScreen.id==='lobby'){
+  net.lobT=(net.lobT||0)-dt; if(net.lobDirty&&net.lobT<=0){ net.lobDirty=false; net.lobT=0.3; if(curScreen&&curScreen.id==='lobby') refreshLobby(); }
+  if(net.lid&&!net.host&&((curScreen&&curScreen.id==='lobby')||(net.racing&&(state==='race'||state==='countdown')))){
     if(findHost()) net.missT=0; else { net.missT+=dt; if(net.missT>4){ netFail('host-left'); } }
   }
   if(!net.racing) return;
@@ -1017,7 +1025,7 @@ function netFrame(dt){
     c.vx=c.tvx; c.vz=c.tvz; c.f=c.vx*Math.sin(c.h)+c.vz*Math.cos(c.h);
     var pi=((Math.floor(c.progress)%N)+N)%N; c.idx=pi; c.s=((c.progress%N)+N)%N; c.laps=Math.floor(c.progress/N)-1; c.lat=(c.x-px[pi])*lx[pi]+(c.z-pz[pi])*lz[pi]; c.delta=c.steer*0.3;
   }
-  net.sendT-=dt; if(net.sendT<=0){ net.sendT=1/15; if(net.host&&state==='race'&&net.ph==='cd') net.ph='race'; pushPresence(); }
+  net.sendT-=dt; if(net.sendT<=0){ net.sendT=1/12; if(net.host&&state==='race'&&net.ph==='cd') net.ph='race'; pushPresence(); }
 }
 
 /* ================= Audio ================= */
