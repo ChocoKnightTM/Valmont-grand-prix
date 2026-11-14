@@ -196,6 +196,9 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
         <button class="item" data-act="laps">Tours <span class="v" id="vLaps"></span></button>
         <button class="item" data-act="color">Carrosserie <span class="v" id="vColor"></span></button>
         <button class="item" data-act="sound">Son <span class="v" id="vSound"></span></button>
+        <button class="item" data-act="model">Modèle <span class="v" id="vModel"></span></button>
+        <button class="item" data-act="audio">Réglages audio</button>
+        <button class="item" data-act="board">Classements</button>
       </div>
       <span class="pill" id="padPill">Manette : appuie sur un bouton pour l'activer</span>
       <p class="sub credits">Modèles 3D : « Ferrari F599 | Low Poly Stylized » par kulonee (Sketchfab, CC BY 4.0).</p>
@@ -284,7 +287,26 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
       </div>
     </div>
   </div>
-
+  <div id="audio" class="layer screen dim" hidden>
+    <div class="col">
+      <h2>Réglages audio</h2>
+      <p class="sub">Flèches gauche et droite pour régler.</p>
+      <div class="items">
+        <button class="item" data-act="vol">Volume général <span class="v" id="vVol"></span></button>
+        <button class="item" data-act="mus">Musique <span class="v" id="vMus"></span></button>
+        <button class="item" data-act="eng">Moteur <span class="v" id="vEng"></span></button>
+        <button class="item" data-act="menu">Retour</button>
+      </div>
+    </div>
+  </div>
+  <div id="board" class="layer screen dim" hidden>
+    <div class="col">
+      <h2>Classements</h2>
+      <div class="items"><button class="item" data-act="lbtrack">Circuit <span class="v" id="vLbTrack"></span></button></div>
+      <ol id="lbMenu"></ol>
+      <div class="items"><button class="item" data-act="menu">Retour</button></div>
+    </div>
+  </div>
   <div id="fatal" class="layer" hidden><p id="fatalMsg"></p></div>
 </div>
 
@@ -1012,7 +1034,7 @@ var CAR_LEN=4.65;
 function chargerModeles(){
   if(!THREE.GLTFLoader) return;
   var loader=new THREE.GLTFLoader(), restants=MODELES.length, res=[];
-  function fin(){ if(--restants>0) return; var ok=res.filter(Boolean); if(ok.length) pool.forEach(function(c,k){ poserModele(c,ok[k%ok.length]); }); }
+  function fin(){ if(--restants>0) return; var ok=res.filter(Boolean); MODS=ok; if(ok.length){ pool.forEach(function(c,k){ c.modIdx=k%ok.length; poserModele(c,ok[c.modIdx]); }); setMod(player,opt.model); } }
   MODELES.forEach(function(m,k){
     loader.load(m.fichier,function(gltf){ try{ res[k]=preparerModele(gltf.scene,m); }catch(e){ console.warn('Modèle illisible : '+m.fichier,e); } fin(); },
       undefined,function(){ console.warn('Modèle introuvable : '+m.fichier); fin(); });
@@ -1166,7 +1188,7 @@ function setupRace(){
     net.grid.slice(0,MAXCARS).forEach(function(pid){
       c=free.shift(); if(!c) return;
       if(pid===net.me){ resetCar(c,'player',net.name||'Toi','TOI',PAINTS[opt.color][1]); player=c; }
-      else { var pr=peerById(pid), ps=pr?pr.presence:{}; var nm=cleanName(ps.nm); resetCar(c,'net',nm,nm.slice(0,3).toUpperCase(),PAINTS[clamp(num(ps.col)|0,0,PAINTS.length-1)][1]); c.peer=pid; }
+      else { var pr=peerById(pid), ps=pr?pr.presence:{}; var nm=cleanName(ps.nm); resetCar(c,'net',nm,nm.slice(0,3).toUpperCase(),PAINTS[clamp(num(ps.col)|0,0,PAINTS.length-1)][1]); c.peer=pid; setMod(c,ps.mod);}
       cars.push(c); });
     var nb=Math.min(net.cfg.bots,MAXCARS-cars.length);
     for(k=0;k<nb;k++){ c=free.shift(); resetCar(c,net.host?'ai':'net',NAMES[k][0],NAMES[k][1],PAINTS[(PAINTS.length-1-k)][1]); c.botIdx=k; c.ai.pace=lerp(d[2],d[1],nb>1?k/(nb-1):0); cars.push(c); }
@@ -1176,7 +1198,7 @@ function setupRace(){
     placeCar(q,gridIdx(i),(i%2?-2.5:2.5)); q.s=q.idx; q.progress=q.idx;
     q.ai.lane=(i%2?-2.2:2.2)*(0.5+0.5*Math.random()); q.ai.off=q.lat; q.ai.delay=0.1+Math.random()*(raceDiff===2?0.12:0.3); q.ai.nit=false;
   });
-  raceTime=0; green=false; cdT=0; cdHold=online?4.6:4.4+Math.random()*0.9; raceBest=null; finishShown=false; finishDelay=0; wrongT=0; thPrev=false; thT=-1; pendingLaunch=false;
+  setMod(player,opt.model); raceTime=0; green=false; cdT=0; cdHold=online?4.6:4.4+Math.random()*0.9; raceBest=null; finishShown=false; finishDelay=0; wrongT=0; thPrev=false; thT=-1; pendingLaunch=false;
   camH=player.h;
   $('lapTot').textContent=totalLaps; $('posTot').textContent=cars.length; $('tLast').textContent=fmt(null); $('tBest').textContent=fmt(null); $('tLast').className='num'; $('tRec').textContent=fmt(record);
   setLights(0); banner('',0);
@@ -1188,12 +1210,12 @@ function act(name){
   if(curScreen){
     if(name==='up') moveFocus(-1); else if(name==='down') moveFocus(1);
     else if(name==='left') activate(-1); else if(name==='right') activate(1); else if(name==='ok') activate(0);
-    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
+    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board') handlers.menu(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
     return;
   }
   if(name==='pause') pauseGame();
   else if(name==='cam') camMode=(camMode+1)%3;
-  else if(name==='reset'&&green&&player&&!player.finished){ placeCar(player,player.idx,0); }
+  else if(name==='resetOFF'&&green&&player&&!player.finished){ placeCar(player,player.idx,0); }
 }
 window.addEventListener('keydown',function(e){
   var tg=e.target;
@@ -1276,7 +1298,7 @@ var handlers={
   diff:function(d){ opt.diff=(opt.diff+d+3)%3; refreshOptLabels(); saveOpt(); },
   laps:function(d){ opt.laps=(opt.laps+d+3)%3; refreshOptLabels(); saveOpt(); },
   color:function(d){ opt.color=(opt.color+d+PAINTS.length)%PAINTS.length; refreshOptLabels(); saveOpt(); if(player){ player.hex=PAINTS[opt.color][1]; paintCar(player.vis,player.hex); } pushPresence(); refreshLobby(); },
-  sound:function(){ opt.sound=!opt.sound; refreshOptLabels(); saveOpt(); if(master) master.gain.value=opt.sound?0.5:0; },
+  sound:function(){ opt.sound=!opt.sound; refreshOptLabels(); saveOpt(); if(master) master.gain.value=volMaster(); },
   resume:function(){ if(state==='paused') state=prevState; openScreen(null); },
   restart:function(){ if(net.lid) backToLobby(); else handlers.start(); },
   quit:function(){ if(net.lid){ leaveLobby(); net.msg=''; openScreen('online'); refreshOnline(); } else { online=false; setupRace(); state='menu'; $('hud').hidden=true; openScreen('menu'); } },
@@ -1310,7 +1332,7 @@ function readCfg(c){ c=c||{}; return {tr:clamp(num(c.tr)|0,0,TRACKS.length-1),la
 function packCar(c){ return [r1(c.x),r1(c.z),r2(c.h),r1(c.vx),r1(c.vz),r1(c.progress),c.finished?Math.round(c.finishTime*1000)/1000:0,(c.brake>0.05?1:0)|((c.nitroOn&&c.nitro>0)||c.padT>0?2:0),r2(c.steer)]; }
 function pushPresence(){
   if(!net.room) return;
-  var o={v:2,nm:net.name,col:opt.color,lid:net.lid||null,host:net.lid?net.host:null,ph:null,rid:null,cfg:null,grid:null,bots:null,p:null,rr:null};
+  var o={v:2,nm:net.name,col:opt.color,mod:opt.model,lid:net.lid||null,host:net.lid?net.host:null,ph:null,rid:null,cfg:null,grid:null,bots:null,p:null,rr:null};
   if(net.lid&&net.host){ o.ph=net.ph; o.rid=net.rid; o.cfg=net.cfg; o.grid=net.grid; }
   if(net.racing&&player){ o.rr=net.lastRid; o.p=packCar(player); if(net.host){ var b=[]; cars.forEach(function(c){ if(c.ctrl==='ai'&&c.botIdx>=0) b[c.botIdx]=packCar(c); }); o.bots=b; } }
   try{ net.room.presence(o).catch(function(){}); }catch(e){}
@@ -1493,7 +1515,7 @@ function changerMusique(nom){
 function initAudio(){
   if(AC){ if(AC.state==='suspended') AC.resume(); if(musique&&musique.paused) musique.play().catch(function(){}); return; }
   try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; return; }
-  master=AC.createGain(); master.gain.value=opt.sound?0.5:0; master.connect(AC.destination);
+  master=AC.createGain(); master.gain.value=volMaster(); master.connect(AC.destination);
   engFilt=AC.createBiquadFilter(); engFilt.type='lowpass'; engFilt.frequency.value=600; engFilt.Q.value=1.2;
   engGain=AC.createGain(); engGain.gain.value=0.0; engFilt.connect(engGain); engGain.connect(master);
   osc1=AC.createOscillator(); osc1.type='sawtooth'; osc2=AC.createOscillator(); osc2.type='square'; osc3=AC.createOscillator(); osc3.type='sawtooth';
@@ -1518,13 +1540,13 @@ function blip(freq,dur,vol){ if(!AC||!master) return; try{ var o=AC.createOscill
 function updateAudio(rpm,thr,speed,slip,boosting){
   if(!AC) return; var t=AC.currentTime, quiet=(state==='paused'||state==='results');
   changerMusique(state==='menu' ? 'musique-menu' : 'musique-'+TRK.key);
-  if(musiqueGain) musiqueGain.gain.setTargetAtTime(state==='menu'?0.45:0.2, t, 0.5);
+    if(musique){ var vit=(state!=='menu'&&totalLaps>1&&player&&!player.finished&&player.laps===totalLaps-1)?1.15:1; if(musique.playbackRate!==vit) musique.playbackRate=vit; }
+  if(musiqueGain) musiqueGain.gain.setTargetAtTime((state==='menu'?0.45:0.2)*opt.mus/5, t, 0.5);
   var f=38+rpm/7500*170;
   if(moteur) moteur.playbackRate.setTargetAtTime(0.6+rpm/7500*1.4, t, 0.03);
   osc1.frequency.setTargetAtTime(f,t,0.03); osc2.frequency.setTargetAtTime(f*0.5,t,0.03); osc3.frequency.setTargetAtTime(f*1.503,t,0.03);
   engFilt.frequency.setTargetAtTime(350+rpm*0.22+thr*1400+(boosting?900:0),t,0.05);
-  engGain.gain.setTargetAtTime(quiet?0:(state==='menu'?0.04:0.10+thr*0.14),t,0.06);
-  sqGain.gain.setTargetAtTime(quiet?0:clamp((slip-2)/7,0,1)*0.22*(speed>6?1:0),t,0.05);
+engGain.gain.setTargetAtTime(opt.eng/5*(quiet?0:(state==='menu'?0.04:0.10+thr*0.14)),t,0.06);  sqGain.gain.setTargetAtTime(quiet?0:clamp((slip-2)/7,0,1)*0.22*(speed>6?1:0),t,0.05);
   windGain.gain.setTargetAtTime(quiet?0:clamp(speed/80,0,1)*0.28+(boosting?0.25:0),t,0.1);
 }
 
@@ -1799,6 +1821,40 @@ function envoyerTemps(){
   }).catch(function(){ m.textContent='Serveur injoignable.'; });
 }
 $('lbSend').onclick=envoyerTemps;
+var MODS=[], lbIdx=0;
+opt.vol=5; opt.mus=5; opt.eng=5; opt.model=0;
+try{ var sv2=JSON.parse(localStorage.getItem('valmont_opt2')||'null');
+  if(sv2){ ['vol','mus','eng'].forEach(function(k){ if(typeof sv2[k]==='number') opt[k]=clamp(sv2[k]|0,0,10); });
+    opt.model=clamp(sv2.model|0,0,MODELES.length-1); } }catch(e){}
+function volMaster(){ return opt.sound?opt.vol/10:0; }
+function setMod(c,m){
+  if(!c||!MODS||!MODS.length) return;
+  m=clamp(m|0,0,MODS.length-1); if(c.modIdx===m) return;
+  if(c.vis.model) c.vis.group.remove(c.vis.model);
+  poserModele(c,MODS[m]); c.modIdx=m;
+}
+function majReglages(){
+  $('vVol').textContent=opt.vol*10+' %'; $('vMus').textContent=opt.mus*10+' %'; $('vEng').textContent=opt.eng*10+' %';
+  $('vModel').textContent='Voiture '+(opt.model+1);
+  if(master) master.gain.value=volMaster();
+}
+function classementMenu(){
+  var ul=$('lbMenu'), t=TRACKS[lbIdx]; $('vLbTrack').textContent=t.name; ul.innerHTML='<li>Chargement…</li>';
+  fetch(API+'classement?piste='+t.key).then(function(r){ return r.json(); }).then(function(l){
+    if(TRACKS[lbIdx]!==t) return; ul.innerHTML='';
+    if(!l.length){ ul.innerHTML='<li>Aucun temps pour l\'instant</li>'; return; }
+    l.forEach(function(o){ var li=document.createElement('li'); li.textContent=o.pseudo+' — '+fmt(o.ms/1000); ul.appendChild(li); });
+  }).catch(function(){ ul.innerHTML='<li>Classement indisponible</li>'; });
+}
+['vol','mus','eng'].forEach(function(k){ OPTS[k]=1; handlers[k]=function(d){ var v=opt[k]+d; opt[k]=v>10?0:(v<0?10:v); saveOpt(); majReglages(); }; });
+OPTS.model=OPTS.lbtrack=1;
+handlers.model=function(d){ var n=MODS.length||MODELES.length; opt.model=(opt.model+d+n)%n; setMod(player,opt.model); saveOpt(); majReglages(); };
+handlers.audio=function(){ openScreen('audio'); };
+handlers.board=function(){ lbIdx=opt.track; openScreen('board'); classementMenu(); };
+handlers.lbtrack=function(d){ lbIdx=(lbIdx+d+TRACKS.length)%TRACKS.length; classementMenu(); };
+handlers.menu=function(){ openScreen('menu'); };
+SCREENS.push('audio','board');
+majReglages();
 function fillResults(){
   var pos=sorted.indexOf(player)+1, lead=sorted[0], tb=$('resTable');
   $('resTitle').textContent=pos===1?'Victoire':(pos<=3?'Podium · P'+pos:'Arrivée · P'+pos);
