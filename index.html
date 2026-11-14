@@ -99,6 +99,7 @@ h2{font-family:var(--display);font-weight:900;font-size:52px;line-height:.9;marg
 .pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);padding:5px 10px;border:1px solid var(--line);align-self:flex-start}
 .pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
 .pill.ok{color:var(--fg)}.pill.ok::before{background:var(--green);box-shadow:0 0 8px var(--green)}
+.credits{font-size:12px;opacity:.75}
 .field{display:grid;gap:4px}
 .field input{font:inherit;font-family:var(--num);font-size:20px;font-weight:600;color:var(--fg);background:rgba(255,255,255,.07);border:1px solid var(--line);padding:7px 12px;width:100%}
 .field input:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
@@ -193,6 +194,7 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
         <button class="item" data-act="sound">Son <span class="v" id="vSound"></span></button>
       </div>
       <span class="pill" id="padPill">Manette : appuie sur un bouton pour l'activer</span>
+      <p class="sub credits">Modèles 3D : « Ferrari F599 | Low Poly Stylized » par kulonee (Sketchfab, CC BY 4.0).</p>
     </div>
     <div class="box keys">
       <table>
@@ -275,6 +277,7 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 (function(){
 'use strict';
@@ -376,6 +379,7 @@ sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.06;
 scene.add(sun); scene.add(sun.target);
 var hemi=new THREE.HemisphereLight(0xffffff,0xffffff,0.32); scene.add(hemi);
 var headSpot=new THREE.SpotLight(new THREE.Color(1.0,0.93,0.80),0,120,0.50,0.75,1.1); scene.add(headSpot); scene.add(headSpot.target);
+var carSpots=[headSpot]; for(var qs=0;qs<2;qs++){ var spx=new THREE.SpotLight(new THREE.Color(1.0,0.93,0.80),0,60,0.5,0.8,1.2); scene.add(spx); scene.add(spx.target); carSpots.push(spx); }
 var finalMat=null;
 
 function applyEnv(e){
@@ -972,6 +976,7 @@ function paintCar(v,hex){
   var c=lin(hex), lum=0.2126*c.r+0.7152*c.g+0.0722*c.b, m=Math.max(c.r,c.g,c.b,0.04);
   v.paint.color.copy(c); v.stripe.color.copy(lum>0.32?lin(0x15171b):lin(0xf2f2ee));
   v.under.material.color.setRGB(0.12+c.r/m*0.8,0.12+c.g/m*0.8,0.12+c.b/m*0.8);
+  if(v.palettes) v.palettes.forEach(function(p){ repeindrePalette(p,hex); });
 }
 var pool=[], cars=[], player;
 (function(){ for(var k=0;k<MAXCARS;k++) pool.push({vis:buildCar(),ai:{pace:0.9,lane:0,off:0,delay:0,nit:false}}); player=pool[0]; })();
@@ -980,10 +985,95 @@ function resetCar(c,ctrl,name,tag,hex){
   c.x=0;c.z=0;c.h=0;c.vx=0;c.vz=0;c.f=0;c.steer=0;c.delta=0;c.throttle=0;c.brake=0;c.hand=0;c.idx=0;c.lat=0;c.laps=-1;c.s=0;c.progress=0;
   c.lapStart=0;c.best=null;c.last=null;c.finished=false;c.finishTime=0;c.slip=0;c.off=false;c.boost=1;c.auto=false;c.roll=0;c.pitch=0;c.yawRate=0;c.acc=0;c.stuck=0;
   c.nitro=0.34;c.nitroOn=false;c.padT=0;c.launchT=0;c.draft=0;c.hits=0;c.peer=null;c.botIdx=-1;
-  c.tx=0;c.tz=0;c.th=0;c.tvx=0;c.tvz=0;c.stamp=0;c.sig=NaN;
+  c.tx=0;c.tz=0;c.th=0;c.tvx=0;c.tvz=0;c.stamp=0;c.sig=NaN;c.drift=0;c.driftT=0;
+}
+/* ================= Car models (.glb) ================= */
+/* One entry per model in the modeles folder. "corps" is the palette colour of the bodywork in that file:
+   it is repainted with each car's colour. Every model is scaled to the same length (CAR_LEN), so the
+   hitbox, the handling and the collisions stay exactly the same whatever model a car uses. */
+var MODELES=[
+  {fichier:'modeles/voiture-1.glb', corps:[110,15,31]},
+  {fichier:'modeles/voiture-2.glb', corps:[110,15,31]},
+  {fichier:'modeles/voiture-3.glb', corps:[20,40,79]}
+];
+var CAR_LEN=4.65;
+function chargerModeles(){
+  if(!THREE.GLTFLoader) return;
+  var loader=new THREE.GLTFLoader(), restants=MODELES.length, res=[];
+  function fin(){ if(--restants>0) return; var ok=res.filter(Boolean); if(ok.length) pool.forEach(function(c,k){ poserModele(c,ok[k%ok.length]); }); }
+  MODELES.forEach(function(m,k){
+    loader.load(m.fichier,function(gltf){ try{ res[k]=preparerModele(gltf.scene,m); }catch(e){ console.warn('Modèle illisible : '+m.fichier,e); } fin(); },
+      undefined,function(){ console.warn('Modèle introuvable : '+m.fichier); fin(); });
+  });
+}
+function lirePixels(img){ var cv=document.createElement('canvas'); cv.width=img.width; cv.height=img.height; var g=cv.getContext('2d',{willReadFrequently:true}); g.drawImage(img,0,0); return {w:cv.width,h:cv.height,d:g.getImageData(0,0,cv.width,cv.height).data}; }
+/* Finds the lit red faces (tail lights) and lit white faces (headlights) of a model and gives them their own materials. */
+function decouperFeux(mesh){
+  var geo=mesh.geometry, mat=mesh.material;
+  if(Array.isArray(mat)||!mat.map||!mat.map.image||!mat.emissiveMap||!mat.emissiveMap.image||!geo.attributes.uv) return;
+  var C=lirePixels(mat.map.image), E=lirePixels(mat.emissiveMap.image), uv=geo.attributes.uv, idx=geo.index?geo.index.array:null;
+  var nt=(idx?idx.length:geo.attributes.position.count)/3, L=[[],[],[]], t, k;
+  function px(I,u,v){ var x=Math.min(I.w-1,Math.max(0,Math.floor(u*I.w))), y=Math.min(I.h-1,Math.max(0,Math.floor(v*I.h))), o=(y*I.w+x)*4; return [I.d[o],I.d[o+1],I.d[o+2]]; }
+  for(t=0;t<nt;t++){ var u=0,v=0; for(k=0;k<3;k++){ var vi=idx?idx[t*3+k]:t*3+k; u+=uv.getX(vi); v+=uv.getY(vi); }
+    var c=px(C,u/3,v/3), e=px(E,u/3,v/3), lit=e[0]+e[1]+e[2]>60, kd=0;
+    if(lit&&c[0]>150&&c[1]<70&&c[2]<70) kd=1; else if(lit&&c[0]>200&&c[1]>200&&c[2]>200) kd=2;
+    for(k=0;k<3;k++) L[kd].push(idx?idx[t*3+k]:t*3+k); }
+  if(!L[1].length&&!L[2].length) return;
+  geo=geo.clone(); geo.setIndex(L[0].concat(L[1],L[2])); geo.clearGroups();
+  geo.addGroup(0,L[0].length,0); geo.addGroup(L[0].length,L[1].length,1); geo.addGroup(L[0].length+L[1].length,L[2].length,2);
+  mesh.geometry=geo;
+  mesh.material=[mat,
+    new THREE.MeshStandardMaterial({name:'feux_stop',color:new THREE.Color(0.25,0.01,0.01),emissive:new THREE.Color(1,0.05,0.03),emissiveIntensity:0.6,roughness:0.4}),
+    new THREE.MeshStandardMaterial({name:'phares',color:0xffffff,emissive:new THREE.Color(1,0.96,0.88),emissiveIntensity:1.2,roughness:0.3})];
+}
+function preparerModele(root,m){
+  root.updateMatrixWorld(true);
+  var box=new THREE.Box3().setFromObject(root), size=box.getSize(new THREE.Vector3()), s=CAR_LEN/size.z;
+  root.scale.multiplyScalar(s);
+  root.position.set(-(box.min.x+box.max.x)/2*s, -box.min.y*s, -(box.min.z+box.max.z)/2*s);   /* centred, wheels on the ground */
+  root.traverse(function(o){ if(o.isMesh){ o.castShadow=true; decouperFeux(o); } });
+  var holder=new THREE.Group(); holder.add(root);
+  return {proto:holder,corps:m.corps};
+}
+function poserModele(c,M){
+  var v=c.vis, obj=M.proto.clone(true), cache={}, roues=[];
+  v.palettes=[];
+  v.tailMat=null; v.headMat=null;
+  obj.traverse(function(o){
+    if(/^Wheel_/i.test(o.name)) roues.push(o);
+    if(!o.isMesh||!o.material) return;
+    var arr=Array.isArray(o.material)?o.material:[o.material];
+    var out=arr.map(function(mm){
+      if(mm.name==='feux_stop'){ if(!v.tailMat) v.tailMat=mm.clone(); return v.tailMat; }
+      if(mm.name==='phares'){ if(!v.headMat) v.headMat=mm.clone(); return v.headMat; }
+      if(!mm.map||!mm.map.image) return mm;
+      if(!cache[mm.uuid]){   /* each car gets its own copy of the palette, so it can have its own colour */
+        var cl=mm.clone(), img=mm.map.image, cv=document.createElement('canvas'); cv.width=img.width; cv.height=img.height;
+        var t=new THREE.CanvasTexture(cv); ['flipY','encoding','magFilter','minFilter','wrapS','wrapT'].forEach(function(k){ t[k]=mm.map[k]; });
+        cl.map=t; cache[mm.uuid]=cl; v.palettes.push({cv:cv,img:img,tex:t,corps:M.corps});
+      }
+      return cache[mm.uuid];
+    });
+    o.material=Array.isArray(o.material)?out:out[0];
+  });
+  if(v.tailMat) v.brakeMat=v.tailMat;
+  /* each wheel goes into its own pivot: the wheel spins inside it, the pivot steers */
+  var spin=[], steer=[];
+  roues.forEach(function(w){ var pv=new THREE.Group(); pv.position.copy(w.position); w.parent.add(pv); w.position.set(0,0,0); pv.add(w); spin.push(w); if(/_F[LR]$/i.test(w.name)) steer.push(pv); });
+  if(spin.length!==4||steer.length!==2) { console.warn('Roues non reconnues dans un modèle : elles ne tourneront pas.'); }
+  v.chassis.visible=false; v.wheels.forEach(function(w){ w.parent.visible=false; });
+  v.group.add(obj); v.chassis=obj; v.model=obj;
+  if(spin.length===4&&steer.length===2){ v.wheels=spin; v.pivots=steer; } else { v.wheels=[]; v.pivots=[new THREE.Group(),new THREE.Group()]; }
+  paintCar(v,c.hex||0x888888);
+}
+function repeindrePalette(p,hex){
+  var g=p.cv.getContext('2d',{willReadFrequently:true}); g.clearRect(0,0,p.cv.width,p.cv.height); g.drawImage(p.img,0,0);
+  var d=g.getImageData(0,0,p.cv.width,p.cv.height), a=d.data, r=(hex>>16)&255, gg=(hex>>8)&255, b=hex&255, c=p.corps;
+  for(var i=0;i<a.length;i+=4){ if(Math.abs(a[i]-c[0])<10&&Math.abs(a[i+1]-c[1])<10&&Math.abs(a[i+2]-c[2])<10){ a[i]=r; a[i+1]=gg; a[i+2]=b; } }
+  g.putImageData(d,0,0); p.tex.needsUpdate=true;
 }
 function gridIdx(slot){ return (N-Math.round((10+slot*9)/ds)+N)%N; }
-function placeCar(c,idx,lat){ idx=(idx+N)%N; c.x=px[idx]+lx[idx]*lat; c.z=pz[idx]+lz[idx]*lat; c.h=Math.atan2(tx[idx],tz[idx]); c.vx=c.vz=0; c.f=0; c.idx=idx; c.lat=lat; c.steer=0; c.slip=0; c.tx=c.x; c.tz=c.z; c.th=c.h; }
+function placeCar(c,idx,lat){ idx=(idx+N)%N; c.x=px[idx]+lx[idx]*lat; c.z=pz[idx]+lz[idx]*lat; c.h=Math.atan2(tx[idx],tz[idx]); c.vx=c.vz=0; c.f=0; c.idx=idx; c.lat=lat; c.steer=0; c.slip=0; c.drift=0; c.driftT=0; c.tx=c.x; c.tz=c.z; c.th=c.h; }
 
 /* ================= Particles ================= */
 var PN=300, pPos=new Float32Array(PN*3), pVel=new Float32Array(PN*3), pLife=new Float32Array(PN), pTint=new Float32Array(PN), pNext=0;
@@ -991,7 +1081,7 @@ var pGeo=new THREE.BufferGeometry();
 pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3)); pGeo.setAttribute('aLife',new THREE.BufferAttribute(pLife,1)); pGeo.setAttribute('aTint',new THREE.BufferAttribute(pTint,1));
 var pMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uScale:{value:600}},
   vertexShader:'attribute float aLife; attribute float aTint; varying float vL; varying float vT; uniform float uScale; void main(){ vL=aLife; vT=aTint; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=uScale*(0.7+(1.0-aLife)*2.6)*(aTint>1.5?0.45:1.0)/max(-mv.z,0.5); gl_Position=projectionMatrix*mv; }',
-  fragmentShader:'varying float vL; varying float vT; void main(){ float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.12,d)*vL; vec3 c=mix(vec3(0.78,0.78,0.80),vec3(0.36,0.27,0.14),min(vT,1.0)); if(vT>1.5){ gl_FragColor=vec4(vec3(0.5,1.3,3.2)*vL,a*0.8); } else { gl_FragColor=vec4(c,a*0.34); } }'});
+  fragmentShader:'varying float vL; varying float vT; void main(){ float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.12,d)*vL; vec3 c=mix(vec3(0.78,0.78,0.80),vec3(0.36,0.27,0.14),min(vT,1.0)); if(vT>1.5){ vec3 gc=vT>2.5?vec3(3.4,1.4,0.25):vec3(0.5,1.3,3.2); gl_FragColor=vec4(gc*vL,a*0.8); } else { gl_FragColor=vec4(c,a*0.34); } }'});
 var pMesh=new THREE.Points(pGeo,pMat); pMesh.frustumCulled=false; scene.add(pMesh);
 function emit(x,y,z,vx,vy,vz,tint){ var i=pNext; pNext=(pNext+1)%PN; pPos[i*3]=x; pPos[i*3+1]=y; pPos[i*3+2]=z; pVel[i*3]=vx; pVel[i*3+1]=vy; pVel[i*3+2]=vz; pLife[i]=1; pTint[i]=tint; }
 function updateParticles(dt){ for(var i=0;i<PN;i++){ if(pLife[i]<=0) continue; pLife[i]=Math.max(0,pLife[i]-dt/(pTint[i]>1.5?0.28:1.1)); pPos[i*3]+=pVel[i*3]*dt; pPos[i*3+1]+=pVel[i*3+1]*dt; pPos[i*3+2]+=pVel[i*3+2]*dt; pVel[i*3]*=0.97; pVel[i*3+2]*=0.97; }
@@ -1489,6 +1579,12 @@ function stepCar(c,dt){
   var i=c.idx, isP=(c===player);
   var sh0=Math.sin(c.h), ch0=Math.cos(c.h), f0=c.vx*sh0+c.vz*ch0;
   c.off=Math.abs(c.lat)>HW+1.15;
+  /* Drift: handbrake while steering at speed. The car turns on a controlled arc instead of spinning. */
+  if(!c.drift){ if(c.hand&&Math.abs(c.steer)>0.3&&f0>12&&!c.off&&green){ c.drift=c.steer>0?1:-1; c.driftT=0; c.driftK=0; c.stS=1;
+      c.slip0=clamp(wrapA(c.h-Math.atan2(c.vx,c.vz)),-0.5,0.5); c.slipA=c.slip0; c.driftW0=c.drift*Math.max(0,(c.yawRate||0)*c.drift); c.pathW=c.driftW0; } }   /* starts from what the car is already doing: no jump */
+  else if(!c.hand||f0<7){ endDrift(c,isP); }
+  if(c.drift) stepDrift(c,dt);
+  else {
   var G=(15+Math.min(9,0.0022*f0*f0))*(c.off?0.55:1);
   var dMax=Math.min(0.52,Math.atan(WB*G/Math.max(f0*f0,4))*1.16);
   var delta=c.steer*dMax;
@@ -1518,6 +1614,7 @@ function stepCar(c,dt){
   c.f=f;
   c.vx=f*sh+l*ch; c.vz=f*ch-l*sh;
   c.x+=c.vx*dt; c.z+=c.vz*dt;
+  }
   locate(c); i=c.idx;
   /* nitro reserve */
   var gain=0.022+(c.slip>3&&Math.abs(f)>12&&!c.off?0.20:0)+c.draft*0.09+(c.ctrl==='ai'?0.02:0);
@@ -1530,8 +1627,47 @@ function stepCar(c,dt){
     var vn=c.vx*lx[i]+c.vz*lz[i];
     if(vn*sg>0){ c.vx-=lx[i]*vn*1.35; c.vz-=lz[i]*vn*1.35; var hit=Math.abs(vn); c.vx*=1-Math.min(0.5,hit*0.03); c.vz*=1-Math.min(0.5,hit*0.03);
       var th=Math.atan2(tx[i],tz[i]), dd=wrapA(th-c.h); if(Math.abs(dd)<1.6) c.h+=dd*Math.min(0.5,hit*0.06);
+      if(c.drift&&hit>5){ c.drift=0; c.driftT=0; }
       if(hit>1.5){ c.hits++; if(isP){ rumble(clamp(hit/12,0.3,1),0.6,180); blip(90,0.12,0.12); } } }
   }
+}
+/* Drift, Mario Kart style.
+   - It starts from the turn the car is already making and builds up gradually (DRIFT_MONTEE seconds): no jump.
+   - During the drift the stick keeps steering: towards the inside the arc tightens a lot, towards the outside
+     the car goes almost straight. That is what lets you choose your line through the corner.
+   - The turning speed is capped in degrees per second: at high speed the arc gets wider, never more violent.
+   - The nose slides out to about 20° (DRIFT_ANGLE) and never much further, so the car cannot spin.
+   - Hold it 1 s (blue sparks) or 2 s (orange sparks) and let go for a mini-turbo. */
+var DRIFT_ROT_SERRE=1.1, DRIFT_ROT_LARGE=0.10;    /* turning speed in rad/s with the stick fully inside / fully outside (1 rad/s ≈ 57°/s) */
+var DRIFT_MONTEE=0.5;                             /* seconds for the drift to reach full strength */
+var DRIFT_REACTIVITE=8;                           /* how fast the arc follows the stick (higher = more nervous) */
+var DRIFT_ANGLE=0.35;                             /* angle of the car's nose relative to its path (0.35 rad ≈ 20°) */
+var DRIFT_R_MIN=10;                                /* tightest possible arc in metres, at low speed */
+function stepDrift(c,dt){
+  var d=c.drift, sp=Math.hypot(c.vx,c.vz);
+  c.stS+=(clamp(c.steer*d,-1,1)-c.stS)*Math.min(1,dt*DRIFT_REACTIVITE);    /* smoothed stick, +1 = inside, -1 = outside */
+  c.driftK=Math.min(1,c.driftK+dt/DRIFT_MONTEE); var k=c.driftK*c.driftK*(3-2*c.driftK);
+  var wFull=d*lerp(DRIFT_ROT_LARGE,DRIFT_ROT_SERRE,(c.stS+1)/2), wMax=sp/DRIFT_R_MIN;
+  c.pathW=clamp(lerp(c.driftW0,wFull,k),-wMax,wMax);
+  var a=0;
+  if(c.throttle>0) a+=c.throttle*11.5*c.boost*(1-0.85*clamp(sp/VT,0,1));
+  if(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green){ a+=9; c.nitro=Math.max(0,c.nitro-dt/3.4); }
+  if(c.padT>0){ a+=15; c.padT-=dt; }
+  a-=0.0012*sp*sp+0.8; if(c.off) a-=sp*0.45; if(c.brake>0) a-=c.brake*14;
+  sp=Math.max(0,sp+a*dt); c.acc=a;
+  var va=Math.atan2(c.vx,c.vz)+c.pathW*dt;
+  var k2=Math.min(1,c.driftT/(DRIFT_MONTEE*2.4)); k2=k2*k2*(3-2*k2);
+  c.slipA=lerp(c.slip0,d*DRIFT_ANGLE*(1+0.2*c.stS),k2);         /* the nose slides out gradually, a bit more when steering inside */
+  c.h=va+c.slipA; c.yawRate=c.pathW; c.delta=d*0.2*c.stS*k;
+  c.vx=sp*Math.sin(va); c.vz=sp*Math.cos(va); c.f=sp*Math.cos(c.slipA); c.slip=k>0.3?5:0;
+  c.driftT+=dt;
+  c.x+=c.vx*dt; c.z+=c.vz*dt;
+}
+function endDrift(c,isP){
+  var lvl=c.driftT>2?2:(c.driftT>1?1:0), sp=Math.hypot(c.vx,c.vz), va=Math.atan2(c.vx,c.vz);
+  va+=wrapA(c.h-va)*0.3; c.vx=sp*Math.sin(va); c.vz=sp*Math.cos(va);   /* straighten up gently on exit */
+  if(lvl){ c.padT=Math.max(c.padT,lvl===2?1.0:0.55); if(isP){ jouer('boost',0.7)||blip(1200,0.18,0.07); rumble(0.5,0.9,220); } }
+  c.drift=0; c.driftT=0;
 }
 function collide(){
   for(var a=0;a<cars.length;a++) for(var b=a+1;b<cars.length;b++){
@@ -1601,7 +1737,7 @@ function updateHUD(dt){
   for(var i=0;i<10;i++){ leds[i].className=(i<lit?'on'+(i>=8?' r':(i>=5?' y':'')):''); }
   var nOn=c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green;
   $('nitroFill').style.width=(c.nitro*100).toFixed(0)+'%'; $('nitroBox').classList.toggle('live',nOn);
-  var tg=(state==='race')?(c.padT>0?'BOOST':(nOn?'NITRO':(c.draft>0.5?'ASPIRATION':''))):'';
+  var tg=(state==='race')?(c.drift?(c.driftT>2?'MINI-TURBO MAX':(c.driftT>1?'MINI-TURBO':'DÉRAPAGE')):c.padT>0?'BOOST':(nOn?'NITRO':(c.draft>0.5?'ASPIRATION':''))):'';
   if(tg!==lastTag){ lastTag=tg; $('tag').textContent=tg; $('tag').hidden=!tg; }
   $('tCur').textContent=fmt(green&&!c.finished?(c.laps>=0?raceTime-c.lapStart:raceTime):(c.finished?c.last:0));
   if(bannerT>0){ bannerT-=dt; if(bannerT<=0) $('banner').style.opacity=0; }
@@ -1648,12 +1784,14 @@ function syncVisuals(dt,time){
     var aLat=c.f*c.yawRate;
     c.roll+=(clamp(aLat*0.0032,-0.07,0.07)-c.roll)*Math.min(1,dt*7); c.pitch+=(clamp(-c.acc*0.0019,-0.035,0.045)-c.pitch)*Math.min(1,dt*6);
     v.chassis.rotation.z=c.roll; v.chassis.rotation.x=c.pitch;
-    var spin=c.f/0.34*dt; for(var w=0;w<4;w++) v.wheels[w].rotation.x+=spin;
+    var spin=c.f/0.34*dt; for(var w=0;w<v.wheels.length;w++) v.wheels[w].rotation.x+=spin;
     v.pivots[0].rotation.y=v.pivots[1].rotation.y=(c.delta||0)*(c===player?1.6:1.2);
     v.brakeMat.emissiveIntensity=(c.brake>0.05||c.hand)?5.5:(beams?1.6:0.5);
+    if(v.headMat) v.headMat.emissiveIntensity=beams?6:1.2;
     if(doEmit&&green){ var sh=Math.sin(c.h), ch=Math.cos(c.h), sp=Math.abs(c.f);
       if((c.slip>2.6&&sp>8&&!c.off)||(c.off&&sp>6)){ var side=(Math.random()<0.5?1:-1)*0.85, ex=c.x-sh*1.35+ch*side, ez=c.z-ch*1.35-sh*side;
         emit(ex,0.25,ez,c.vx*0.25+(Math.random()-0.5)*1.5,0.8+Math.random(),c.vz*0.25+(Math.random()-0.5)*1.5,c.off?1:0); }
+      if(c.drift&&c.driftT>1){ var tn=c.driftT>2?3:2; for(var s3=-1;s3<=1;s3+=2) emit(c.x-sh*1.4+ch*0.9*s3,0.25,c.z-ch*1.4-sh*0.9*s3,(Math.random()-0.5)*3,1.5+Math.random()*2,(Math.random()-0.5)*3,tn); }
       if(((c.nitroOn&&c.nitro>0&&(c.throttle>0.1||c.ctrl==='net'))||c.padT>0)&&sp>5){ for(var s2=-1;s2<=1;s2+=2) emit(c.x-sh*2.3+ch*0.45*s2,0.5,c.z-ch*2.3-sh*0.45*s2,c.vx*0.8,0.2,c.vz*0.8,2); } }
   }
   updateParticles(dt);
@@ -1662,7 +1800,13 @@ function syncVisuals(dt,time){
   updateStartLamps();
   var p=player;
   sun.target.position.set(p.x,0,p.z); sun.position.set(p.x+SUN.x*200,SUN.y*200,p.z+SUN.z*200);
-  if(ENV.spot>0){ var sh2=Math.sin(p.h), ch2=Math.cos(p.h); headSpot.position.set(p.x+sh2*1.6,1.1,p.z+ch2*1.6); headSpot.target.position.set(p.x+sh2*40,-1.5,p.z+ch2*40); }
+  if(ENV.spot>0){   /* the player's headlights plus those of the two closest cars really light the road */
+    var near=cars.filter(function(o){ return o!==p; }).map(function(o){ return [o,(o.x-p.x)*(o.x-p.x)+(o.z-p.z)*(o.z-p.z)]; }).sort(function(a,b){ return a[1]-b[1]; });
+    var who=[p].concat(near.slice(0,2).map(function(a){ return a[0]; }));
+    carSpots.forEach(function(L,q){ var o=who[q]; if(!o){ L.intensity=0; return; } var s4=Math.sin(o.h), c4=Math.cos(o.h);
+      L.position.set(o.x+s4*1.8,1.0,o.z+c4*1.8); L.target.position.set(o.x+s4*32,-1.2,o.z+c4*32);
+      L.intensity=ENV.spot*(q===0?9:5); L.distance=q===0?120:65; L.angle=0.52; });
+  } else carSpots.forEach(function(L){ L.intensity=0; });
   if(p.off&&Math.abs(p.f)>6&&green) rumble(0.25,0.5,90);
   else if(Math.abs(p.lat)>HW&&Math.abs(p.lat)<HW+1.15&&Math.abs(p.f)>10&&green) rumble(0.0,0.35,70);
   else if(p.slip>3.5&&green) rumble(0.1,0.3,70);
@@ -1725,6 +1869,7 @@ window.__vgp={sim:function(ti,di,secs,pace){ online=false; opt.track=ti; opt.dif
 showTrack(opt.track); openScreen('menu');
 (function(){ var hc=(location.hash||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5); if(hc.length!==5) return;
   $('code').value=hc; openScreen('online'); net.msg='Choisis ton pseudo, puis rejoins le salon '+hc+'.'; refreshOnline(); var k=itemsOf().indexOf($('oJoin')); if(k>=0) setFocus(k); })();
+chargerModeles();
 requestAnimationFrame(frame);
 })();
 </script>
