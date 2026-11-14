@@ -7,6 +7,10 @@
 <title>Valmont Grand Prix</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Big+Shoulders+Display:wght@700;900&display=swap">
 <style>
+
+#lb{margin:14px auto 0;max-width:340px;text-align:left}
+#lb input{width:100%;margin:4px 0;padding:6px;border-radius:6px;border:1px solid #555;background:#111;color:#fff}
+#lb button{width:100%;padding:8px;margin-top:4px;cursor:pointer}
 /* Layout: full-bleed 3D view; timing-screen HUD pinned to the four corners; menus slide in from the left over the live scene. */
 :root{
   color-scheme:dark;
@@ -266,6 +270,14 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
       <h2 id="resTitle">Arrivée</h2>
       <p class="sub" id="resSub"></p>
       <table id="resTable"></table>
+            <div id="lb">
+        <h3>Classement mondial</h3>
+        <ol id="lbList"><li>Chargement…</li></ol>
+        <input id="lbPseudo" placeholder="Pseudo" maxlength="16">
+        <input id="lbCode" type="password" placeholder="Code secret" maxlength="32">
+        <button id="lbSend">Envoyer mon meilleur tour</button>
+        <p id="lbMsg"></p>
+      </div>
       <div class="items">
         <button class="item primary" id="rAgain" data-act="restart">Rejouer</button>
         <button class="item" id="rQuit" data-act="quit">Retour au menu</button>
@@ -1763,6 +1775,30 @@ function updateHUD(dt){
   mctx.beginPath(); mctx.moveTo(mx+ms*19,my+mc*19); mctx.lineTo(mx-ms*11+mc*12,my-mc*11-ms*12); mctx.lineTo(mx-ms*4,my-mc*4); mctx.lineTo(mx-ms*11-mc*12,my-mc*11+ms*12); mctx.closePath();
   mctx.fillStyle=cssHex(c.hex); mctx.fill(); mctx.lineWidth=4; mctx.lineJoin='round'; mctx.strokeStyle='#ffffff'; mctx.stroke();
 }
+var API='https://valmont-relay.chocoknight.workers.dev/api/';
+function chargerClassement(){
+  var ul=$('lbList');
+  fetch(API+'classement?piste='+TRK.key).then(function(r){ return r.json(); }).then(function(l){
+    ul.innerHTML='';
+    if(!l.length){ ul.innerHTML='<li>Aucun temps pour l\'instant</li>'; return; }
+    l.forEach(function(o){ var li=document.createElement('li'); li.textContent=o.pseudo+' — '+fmt(o.ms/1000); ul.appendChild(li); });
+  }).catch(function(){ ul.innerHTML='<li>Classement indisponible</li>'; });
+  try{ $('lbPseudo').value=localStorage.getItem('valmont_pseudo')||''; $('lbCode').value=localStorage.getItem('valmont_code')||''; }catch(e){}
+}
+function envoyerTemps(){
+  var p=$('lbPseudo').value.trim(), c=$('lbCode').value, m=$('lbMsg');
+  if(!player||player.best==null){ m.textContent='Aucun tour complet.'; return; }
+  m.textContent='Envoi…';
+  fetch(API+'temps',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({pseudo:p,code:c,piste:TRK.key,ms:Math.round(player.best*1000)})})
+  .then(function(r){ return r.json(); }).then(function(o){
+    if(o.err){ m.textContent=o.err; return; }
+    m.textContent=o.record?'Nouveau record perso enregistré !':'Enregistré (ton ancien temps était meilleur).';
+    try{ localStorage.setItem('valmont_pseudo',p); localStorage.setItem('valmont_code',c); }catch(e){}
+    chargerClassement();
+  }).catch(function(){ m.textContent='Serveur injoignable.'; });
+}
+$('lbSend').onclick=envoyerTemps;
 function fillResults(){
   var pos=sorted.indexOf(player)+1, lead=sorted[0], tb=$('resTable');
   $('resTitle').textContent=pos===1?'Victoire':(pos<=3?'Podium · P'+pos:'Arrivée · P'+pos);
@@ -1842,7 +1878,7 @@ function frame(now){
   pollPad();
   if(state==='countdown'||state==='race'||state==='finished'||state==='results'){
     accT+=dt; var n=0; while(accT>=STEP&&n<8){ simulate(STEP); accT-=STEP; n++; } if(n===8) accT=0;
-    if(state==='finished'){ finishDelay-=dt; if(finishDelay<=0&&!finishShown){ finishShown=true; state='results'; hudT=0; openScreen('results'); } }
+    if(state==='finished'){ finishDelay-=dt; if(finishDelay<=0&&!finishShown){ finishShown=true; state='results'; hudT=0; openScreen('results'); chargerClassement(); } }
   }
   netFrame(dt);
   if(state!=='paused'){ syncVisuals(dt,time); }
