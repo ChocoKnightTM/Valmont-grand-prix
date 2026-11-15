@@ -151,12 +151,11 @@ body.tactile .keys{display:none}
 #tactile[hidden]{display:none}
 .tb{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--num);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(10,14,19,.42);border:2px solid rgba(255,255,255,.55);pointer-events:none}
 .tb.on{background:rgba(255,179,0,.6);border-color:var(--amber)}
-#tGaz{right:max(22px,env(safe-area-inset-right,0px));bottom:26px;width:104px;height:104px;font-size:16px}
-#tDrift{right:calc(max(22px,env(safe-area-inset-right,0px)) + 116px);bottom:18px;width:86px;height:86px;font-size:14px}
-#tNitro{right:calc(max(22px,env(safe-area-inset-right,0px)) + 14px);bottom:142px;width:76px;height:76px;font-size:13px;border-color:var(--cyan)}
+#tDrift{right:max(26px,env(safe-area-inset-right,0px));bottom:26px;width:118px;height:118px;font-size:18px}
+#tNitro{right:calc(max(26px,env(safe-area-inset-right,0px)) + 132px);bottom:22px;width:86px;height:86px;font-size:14px;border-color:var(--cyan)}
 #tNitro.on{background:rgba(56,214,255,.55);border-color:var(--cyan)}
-#tFrein{right:calc(max(22px,env(safe-area-inset-right,0px)) + 214px);bottom:18px;width:62px;height:62px;font-size:11px}
 #tBase{position:absolute;left:max(44px,env(safe-area-inset-left,0px));bottom:34px;width:132px;height:132px;border-radius:50%;background:rgba(10,14,19,.32);border:2px solid rgba(255,255,255,.4);pointer-events:none}
+#tBase::before{content:'▲';position:absolute;left:0;right:0;top:5px;text-align:center;font-size:13px;color:rgba(255,255,255,.6)}
 #tStick{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.78)}
 #tPause,#tVue{top:8px;left:50%;width:auto;height:30px;border-radius:8px;padding:0 13px;font-size:12px}
 #tPause{transform:translateX(-106%)}
@@ -232,7 +231,7 @@ body.tactile .keys{display:none}
 
   <div id="tactile" hidden>
     <div id="tBase"><div id="tStick"></div></div>
-    <div class="tb" id="tFrein">Frein</div><div class="tb" id="tDrift">Drift</div><div class="tb" id="tNitro">Nitro</div><div class="tb" id="tGaz">Gaz</div>
+    <div class="tb" id="tDrift">Drift</div><div class="tb" id="tNitro">Nitro</div>
     <div class="tb" id="tPause">Pause</div><div class="tb" id="tVue">Vue</div>
   </div>
   <div id="tourne">Tourne ton téléphone<span>Le jeu se joue en mode paysage.</span></div>
@@ -253,6 +252,7 @@ body.tactile .keys{display:none}
         <button class="item" data-act="audio">Réglages audio</button>
         <button class="item" data-act="board">Classements</button>
         <button class="item" data-act="gfxs">Graphismes</button>
+        <button class="item" data-act="touches">Touches du clavier</button>
         <button class="item" data-act="plein" id="bPlein" hidden>Plein écran</button>
       </div>
       <span class="pill" id="padPill">Manette : appuie sur un bouton pour l'activer</span>
@@ -261,15 +261,15 @@ body.tactile .keys{display:none}
     <div class="box keys">
       <table>
         <tr><th>Action</th><th>DualSense</th><th>Clavier</th></tr>
-        <tr><td>Accélérer</td><td><kbd>R2</kbd></td><td><kbd>↑</kbd> <kbd>Z</kbd></td></tr>
-        <tr><td>Freiner / reculer</td><td><kbd>L2</kbd></td><td><kbd>↓</kbd> <kbd>S</kbd></td></tr>
-        <tr><td>Diriger</td><td><kbd>Stick gauche</kbd></td><td><kbd>←</kbd> <kbd>→</kbd> <kbd>Q</kbd> <kbd>D</kbd></td></tr>
-        <tr><td>Nitro</td><td><kbd>R1</kbd></td><td><kbd>Maj</kbd></td></tr>
-        <tr><td>Frein à main</td><td><kbd>✕</kbd></td><td><kbd>Espace</kbd></td></tr>
-        <tr><td>Changer de caméra</td><td><kbd>△</kbd></td><td><kbd>C</kbd></td></tr>
-        <tr><td>Regarder derrière</td><td><kbd>○</kbd></td><td><kbd>B</kbd></td></tr>
+        <tr><td>Accélérer</td><td><kbd>R2</kbd></td><td><kbd>↑</kbd> <kbd id="kGaz">Z</kbd></td></tr>
+        <tr><td>Freiner / reculer</td><td><kbd>L2</kbd></td><td><kbd>↓</kbd> <kbd id="kFrein">S</kbd></td></tr>
+        <tr><td>Diriger</td><td><kbd>Stick gauche</kbd></td><td><kbd>←</kbd> <kbd>→</kbd> <kbd id="kGauche">Q</kbd> <kbd id="kDroite">D</kbd></td></tr>
+        <tr><td>Nitro</td><td><kbd>R1</kbd></td><td><kbd id="kNitro">Espace</kbd></td></tr>
+        <tr><td>Drift (frein à main)</td><td><kbd>✕</kbd></td><td><kbd id="kDrift">Maj</kbd></td></tr>
+        <tr><td>Changer de caméra</td><td><kbd>△</kbd></td><td><kbd id="kCam">C</kbd></td></tr>
+        <tr><td>Regarder derrière</td><td><kbd>○</kbd></td><td><kbd id="kArriere">B</kbd></td></tr>
         <tr><td>Replacer sur la piste</td><td><kbd>□</kbd></td><td><kbd>R</kbd></td></tr>
-        <tr><td>Pause</td><td><kbd>Options</kbd></td><td><kbd>Échap</kbd></td></tr>
+        <tr><td>Pause</td><td><kbd>Options</kbd></td><td><kbd>Échap</kbd> <kbd id="kPause">P</kbd></td></tr>
       </table>
       <p>La nitro se recharge en dérapant et dans l'aspiration d'une autre voiture. Les bandes bleues sur la piste donnent un coup de boost. Départ canon : n'accélère qu'une fois les cinq feux allumés.</p>
     </div>
@@ -339,6 +339,25 @@ body.tactile .keys{display:none}
       <div class="items">
         <button class="item primary" id="rAgain" data-act="restart">Rejouer</button>
         <button class="item" id="rQuit" data-act="quit">Retour au menu</button>
+      </div>
+    </div>
+  </div>
+  <div id="touches" class="layer screen dim" hidden>
+    <div class="col">
+      <h2>Touches</h2>
+      <p class="sub" id="tkInfo">Choisis une action, puis appuie sur la nouvelle touche. Les flèches du clavier dirigent toujours la voiture.</p>
+      <div class="items">
+        <button class="item" data-act="tk_gaz">Accélérer <span class="n" id="tkGaz"></span></button>
+        <button class="item" data-act="tk_frein">Freiner / reculer <span class="n" id="tkFrein"></span></button>
+        <button class="item" data-act="tk_gauche">Tourner à gauche <span class="n" id="tkGauche"></span></button>
+        <button class="item" data-act="tk_droite">Tourner à droite <span class="n" id="tkDroite"></span></button>
+        <button class="item" data-act="tk_drift">Drift <span class="n" id="tkDrift"></span></button>
+        <button class="item" data-act="tk_nitro">Nitro <span class="n" id="tkNitro"></span></button>
+        <button class="item" data-act="tk_cam">Changer de caméra <span class="n" id="tkCam"></span></button>
+        <button class="item" data-act="tk_arriere">Regarder derrière <span class="n" id="tkArriere"></span></button>
+        <button class="item" data-act="tk_pause">Pause <span class="n" id="tkPause"></span></button>
+        <button class="item" data-act="tk_defaut">Remettre les touches d'origine</button>
+        <button class="item" data-act="menu">Retour</button>
       </div>
     </div>
   </div>
@@ -1329,19 +1348,53 @@ function act(name){
   if(curScreen){
     if(name==='up') moveFocus(-1); else if(name==='down') moveFocus(1);
     else if(name==='left') activate(-1); else if(name==='right') activate(1); else if(name==='ok') activate(0);
-    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board'||id==='gfx') handlers.menu(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
+    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board'||id==='gfx'||id==='touches') handlers.menu(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
     return;
   }
   if(name==='pause') pauseGame();
   else if(name==='cam') camMode=(camMode+1)%3;
   else if(name==='resetOFF'&&green&&player&&!player.finished){ placeCar(player,player.idx,0); }
 }
+/* ---- Touches du clavier : une touche par action, modifiable dans le menu « Touches du clavier » ---- */
+var TOUCHES_ORIGINE={gaz:'KeyW',frein:'KeyS',gauche:'KeyA',droite:'KeyD',drift:'ShiftLeft',nitro:'Space',cam:'KeyC',arriere:'KeyB',pause:'KeyP'};
+var tk={}, tkNoms={}, tkAttente=null, tkClavier=null;
+(function(){ var k; for(k in TOUCHES_ORIGINE) tk[k]=TOUCHES_ORIGINE[k];
+  try{ var sv=JSON.parse(localStorage.getItem('valmont_touches')||'null'); if(sv&&sv.tk){ for(k in TOUCHES_ORIGINE) if(typeof sv.tk[k]==='string') tk[k]=sv.tk[k]; tkNoms=sv.noms||{}; } }catch(e){} })();
+/* vrai si la touche de cette action est enfoncée (les deux touches Maj comptent pour une seule) */
+function TA(a){ var c=tk[a]; return !!(K[c]||(c==='ShiftLeft'&&K.ShiftRight)||(c==='ShiftRight'&&K.ShiftLeft)); }
+function nomTouche(code){
+  var fixes={Space:'Espace',ShiftLeft:'Maj',ShiftRight:'Maj',ControlLeft:'Ctrl',ControlRight:'Ctrl droite',AltLeft:'Alt',AltRight:'Alt Gr',Tab:'Tab',Backspace:'Retour arrière',CapsLock:'Verr. maj'};
+  if(fixes[code]) return fixes[code];
+  var v=tkClavier&&tkClavier.get(code); if(v) return v.toUpperCase();
+  if(tkNoms[code]) return tkNoms[code];
+  var azerty=/^fr/i.test(navigator.language||'')?{KeyW:'Z',KeyA:'Q',KeyQ:'A',KeyZ:'W',Semicolon:'M'}:{};
+  return azerty[code]||code.replace(/^Key|^Digit/,'').replace(/^Numpad/,'Pavé ');
+}
+function majTouches(){
+  var ids={gaz:'Gaz',frein:'Frein',gauche:'Gauche',droite:'Droite',drift:'Drift',nitro:'Nitro',cam:'Cam',arriere:'Arriere',pause:'Pause'}, a;
+  for(a in ids){ var n=nomTouche(tk[a]); $('tk'+ids[a]).textContent=tkAttente===a?'appuie sur une touche…':n; $('k'+ids[a]).textContent=n; }
+}
+function sauverTouches(){ try{ localStorage.setItem('valmont_touches',JSON.stringify({tk:tk,noms:tkNoms})); }catch(e){} }
+if(navigator.keyboard&&navigator.keyboard.getLayoutMap) navigator.keyboard.getLayoutMap().then(function(m){ tkClavier=m; majTouches(); }).catch(function(){});
+/* pendant le choix d'une touche, la prochaine touche enfoncée est attribuée à l'action */
+window.addEventListener('keydown',function(e){
+  if(!tkAttente) return; e.preventDefault(); e.stopImmediatePropagation();
+  var a=tkAttente, c=e.code; tkAttente=null;
+  if(c==='Escape'){ $('tkInfo').textContent='Changement annulé.'; }
+  else if(/^Arrow|^Enter$|^NumpadEnter$|^Meta|^F\d+$/.test(c)||!c){ $('tkInfo').textContent='Cette touche est réservée : choisis-en une autre.'; }
+  else { var autre=null, k; for(k in tk) if(k!==a&&tk[k]===c) autre=k;
+    if(autre) tk[autre]=tk[a];   /* touche déjà utilisée : les deux actions échangent leurs touches */
+    tk[a]=c; if(e.key&&e.key.length===1) tkNoms[c]=e.key.toUpperCase(); sauverTouches();
+    $('tkInfo').textContent=autre?'Touche déjà utilisée : les deux actions ont échangé leurs touches.':'Touche enregistrée.'; }
+  majTouches();
+},true);
 window.addEventListener('keydown',function(e){
   var tg=e.target;
   if(tg&&tg.tagName==='INPUT'){ if(e.code==='Enter'||e.code==='Escape'){ tg.blur(); e.preventDefault(); } return; }
   if(e.repeat){ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code)>=0) e.preventDefault(); return; }
   K[e.code]=true; initAudio();
-  var map={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',Enter:'ok',Escape:'pause',KeyP:'pause',KeyC:'cam',KeyR:'reset'};
+  var map={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',Enter:'ok',Escape:'pause',KeyR:'reset'};
+  if(!curScreen){ map={Escape:'pause',KeyR:'reset'}; map[tk.pause]='pause'; map[tk.cam]='cam'; }
   if((e.code==='Space'||e.code==='Enter')&&curScreen){ act('ok'); e.preventDefault(); return; }
   if(e.code==='KeyM'){ handlers.sound(); return; }
   var a=map[e.code]; if(a){ if(curScreen||a==='pause'||a==='cam'||a==='reset') act(a); }
@@ -1697,18 +1750,21 @@ function onLine(c){
   if(c.laps>=totalLaps){ c.finished=true; c.finishTime=raceTime; if(isP){ c.auto=true; c.ai.pace=0.7; state='finished'; finishDelay=2.4; blip(880,0.25,0.1); } }
 }
 /* ================= Contrôles tactiles =================
-   Joystick à gauche (il apparaît là où le pouce se pose), boutons à droite.
-   Drift et Nitro accélèrent aussi : le pouce droit passe d'un bouton à l'autre sans lâcher les gaz. */
+   Joystick à gauche (il apparaît là où le pouce se pose) : gauche et droite pour tourner, vers l'avant pour accélérer, vers l'arrière pour freiner et reculer.
+   À droite : Drift et Nitro. Ces deux boutons accélèrent aussi. */
+var TAC_GAZ=0.2;         /* à partir de quelle inclinaison vers l'avant la voiture accélère (0 à 1) */
+var TAC_FREIN=0.45;      /* à partir de quelle inclinaison vers l'arrière elle freine */
 var TAC_RAYON=56;        /* course du joystick en pixels : plus petit = direction plus vive */
 var TAC_COURBE=1.25;     /* 1 = direction proportionnelle ; plus grand = plus douce près du centre */
-var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{}};
+var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{},sy:0};
 (function(){
-  var el=$('tactile'), base=$('tBase'), stick=$('tStick'), noms=['tGaz','tDrift','tNitro','tFrein','tPause','tVue'];
+  var el=$('tactile'), base=$('tBase'), stick=$('tStick'), noms=['tDrift','tNitro','tPause','tVue'];
   function bouton(x,y){ var best=null, bd=1e9; noms.forEach(function(id){ var r=$(id).getBoundingClientRect(), d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2))-Math.max(r.width,r.height)/2; if(d<20&&d<bd){ bd=d; best=id; } }); return best; }
-  function maj(){ var g=false,d=false,n=false,f=false,k,b; for(k in tac.doigts){ b=tac.doigts[k]; if(b==='tGaz') g=true; else if(b==='tDrift') d=true; else if(b==='tNitro') n=true; else if(b==='tFrein') f=true; }
-    tac.thr=(g||d||n)?1:0; tac.hand=d; tac.nitro=n; tac.brk=f?1:0;
-    $('tGaz').classList.toggle('on',g); $('tDrift').classList.toggle('on',d); $('tNitro').classList.toggle('on',n); $('tFrein').classList.toggle('on',f); }
-  function lacherStick(){ tac.stick=null; tac.steer=0; stick.style.transform=''; base.style.left=''; base.style.top=''; base.style.bottom=''; }
+  function maj(){ var d=false,n=false,k,b; for(k in tac.doigts){ b=tac.doigts[k]; if(b==='tDrift') d=true; else if(b==='tNitro') n=true; }
+    var av=-tac.sy;   /* inclinaison vers l'avant, de -1 à 1 */
+    tac.thr=(d||n)?1:(av>TAC_GAZ?clamp((av-TAC_GAZ)/0.3,0.35,1):0); tac.brk=(!d&&!n&&av<-TAC_FREIN)?clamp((-av-TAC_FREIN)/0.3,0.3,1):0; tac.hand=d; tac.nitro=n;
+    $('tDrift').classList.toggle('on',d); $('tNitro').classList.toggle('on',n); }
+  function lacherStick(){ tac.stick=null; tac.steer=0; tac.sy=0; stick.style.transform=''; base.style.left=''; base.style.top=''; base.style.bottom=''; }
   tac.vider=function(){ tac.doigts={}; lacherStick(); maj(); };
   el.addEventListener('touchstart',function(e){ e.preventDefault();
     for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
@@ -1718,7 +1774,7 @@ var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{
   el.addEventListener('touchmove',function(e){ e.preventDefault();
     for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
       if(tac.stick&&t.identifier===tac.stick.id){ var dx=clamp((t.clientX-tac.stick.x)/TAC_RAYON,-1,1), dy=clamp((t.clientY-tac.stick.y)/TAC_RAYON,-1,1), a=Math.abs(dx);
-        stick.style.transform='translate('+(dx*TAC_RAYON*0.8)+'px,'+(dy*TAC_RAYON*0.3)+'px)'; tac.steer=a<0.08?0:-Math.sign(dx)*Math.pow((a-0.08)/0.92,TAC_COURBE); }
+        stick.style.transform='translate('+(dx*TAC_RAYON*0.8)+'px,'+(dy*TAC_RAYON*0.8)+'px)'; tac.sy=dy; tac.steer=a<0.08?0:-Math.sign(dx)*Math.pow((a-0.08)/0.92,TAC_COURBE); }
       else if(t.identifier in tac.doigts){ var b=bouton(t.clientX,t.clientY); tac.doigts[t.identifier]=(b==='tPause'||b==='tVue')?null:b; } }
     maj(); },{passive:false});
   function fin(e){ e.preventDefault(); for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i]; if(tac.stick&&t.identifier===tac.stick.id) lacherStick(); delete tac.doigts[t.identifier]; } maj(); }
@@ -1734,11 +1790,11 @@ function majTactile(){
 }
 function playerControl(c,dt){
   if(curScreen){ c.throttle=0; c.brake=0; c.hand=0; c.nitroOn=false; c.steer+=(0-c.steer)*Math.min(1,dt*6); return; }
-  var kl=K.ArrowLeft||K.KeyA, kr=K.ArrowRight||K.KeyD, st, rate;
+  var kl=K.ArrowLeft||TA('gauche'), kr=K.ArrowRight||TA('droite'), st, rate;
   if(kl||kr){ st=(kl?1:0)-(kr?1:0); rate=6.5; } else if(tac.stick){ st=tac.steer; rate=16; } else { st=pad.steer; rate=18; }
   c.steer+=(st-c.steer)*Math.min(1,dt*rate);
-  c.throttle=Math.max((K.ArrowUp||K.KeyW)?1:0,pad.thr,tac.thr); c.brake=Math.max((K.ArrowDown||K.KeyS)?1:0,pad.brk,tac.brk); c.hand=(K.Space||pad.hand||tac.hand)?1:0;
-  c.nitroOn=!!(K.ShiftLeft||K.ShiftRight||pad.nitro||tac.nitro);
+  c.throttle=Math.max((K.ArrowUp||TA('gaz'))?1:0,pad.thr,tac.thr); c.brake=Math.max((K.ArrowDown||TA('frein'))?1:0,pad.brk,tac.brk); c.hand=(TA('drift')||pad.hand||tac.hand)?1:0;
+  c.nitroOn=!!(TA('nitro')||pad.nitro||tac.nitro);
 }
 function aiControl(c,dt){
   var f=c.f, look=Math.floor(clamp((11+f*0.62)/ds,5,32)), j=(c.idx+look)%N;
@@ -2021,6 +2077,11 @@ OPTS.qualite=OPTS.fps=1;
 handlers.gfxs=function(){ openScreen('gfx'); };
 handlers.qualite=function(d){ gfx.choix=(gfx.choix+d+MAXQ+1)%(MAXQ+1); fpsBas=-6; appliquerQualite(gfx.choix||MAXQ,true); sauverGfx(); majGfx(); };
 handlers.fps=function(){ gfx.fps=!gfx.fps; sauverGfx(); majGfx(); };
+handlers.touches=function(){ tkAttente=null; $('tkInfo').textContent='Choisis une action, puis appuie sur la nouvelle touche. Les flèches du clavier dirigent toujours la voiture.'; majTouches(); openScreen('touches'); };
+Object.keys(TOUCHES_ORIGINE).forEach(function(a){ handlers['tk_'+a]=function(){ tkAttente=a; $('tkInfo').textContent='Appuie sur la nouvelle touche (Échap pour annuler).'; majTouches(); }; });
+handlers.tk_defaut=function(){ for(var k in TOUCHES_ORIGINE) tk[k]=TOUCHES_ORIGINE[k]; tkAttente=null; sauverTouches(); majTouches(); $('tkInfo').textContent='Touches d\'origine rétablies.'; };
+SCREENS.push('touches');
+majTouches();
 handlers.plein=function(){ var d=document.documentElement;
   if(document.fullscreenElement){ document.exitFullscreen(); return; }
   if(d.requestFullscreen) d.requestFullscreen().then(function(){ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').catch(function(){}); }).catch(function(){}); };
@@ -2471,7 +2532,7 @@ function updateCamera(dt,time){
     var a=time*0.13, cx=c.x+Math.sin(c.h)*14, cz=c.z+Math.cos(c.h)*14;
     camera.position.set(cx+Math.cos(a)*21,3.4+Math.sin(a*0.7)*0.8,cz+Math.sin(a)*21); camera.lookAt(cx,0.9,cz); if(camera.fov!==48){ camera.fov=48; camera.updateProjectionMatrix(); } finalMat.uniforms.uBlur.value=0; return;
   }
-  var look=(K.KeyB||pad.look)&&state!=='finished'&&!curScreen;
+  var look=(TA('arriere')||pad.look)&&state!=='finished'&&!curScreen;
   camH+=wrapA(c.h-camH)*(1-Math.exp(-dt*(camMode===2?40:6.5)));
   var hh=look?camH+Math.PI:camH, sh=Math.sin(hh), ch=Math.cos(hh);
   if(state==='finished'||state==='results'){
