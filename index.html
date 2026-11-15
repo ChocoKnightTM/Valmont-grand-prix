@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>html{height:100%}body{margin:0}[hidden]{display:none!important}</style>
 <title>Valmont Grand Prix</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Big+Shoulders+Display:wght@700;900&display=swap">
@@ -139,6 +141,50 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
   .posbox b{font-size:44px}
   .hud-tr .num{font-size:17px}.hud-tr #tCur{font-size:22px}
 }
+/* ---- Contrôles tactiles (téléphone et tablette, en paysage) ---- */
+*{-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+#gl{touch-action:none}
+body.tactile{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.tactile .keys{display:none}
+#tactile{position:absolute;inset:0;z-index:4;touch-action:none}
+#tactile[hidden]{display:none}
+.tb{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--num);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(10,14,19,.42);border:2px solid rgba(255,255,255,.55);pointer-events:none}
+.tb.on{background:rgba(255,179,0,.6);border-color:var(--amber)}
+#tGaz{right:max(22px,env(safe-area-inset-right,0px));bottom:26px;width:104px;height:104px;font-size:16px}
+#tDrift{right:calc(max(22px,env(safe-area-inset-right,0px)) + 116px);bottom:18px;width:86px;height:86px;font-size:14px}
+#tNitro{right:calc(max(22px,env(safe-area-inset-right,0px)) + 14px);bottom:142px;width:76px;height:76px;font-size:13px;border-color:var(--cyan)}
+#tNitro.on{background:rgba(56,214,255,.55);border-color:var(--cyan)}
+#tFrein{right:calc(max(22px,env(safe-area-inset-right,0px)) + 214px);bottom:18px;width:62px;height:62px;font-size:11px}
+#tBase{position:absolute;left:max(44px,env(safe-area-inset-left,0px));bottom:34px;width:132px;height:132px;border-radius:50%;background:rgba(10,14,19,.32);border:2px solid rgba(255,255,255,.4);pointer-events:none}
+#tStick{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.78)}
+#tPause,#tVue{top:8px;left:50%;width:auto;height:30px;border-radius:8px;padding:0 13px;font-size:12px}
+#tPause{transform:translateX(-106%)}
+#tVue{transform:translateX(6%)}
+#tourne{display:none}
+@media (orientation:portrait) and (pointer:coarse){
+  #tourne{display:flex;position:fixed;inset:0;z-index:100;background:var(--ink);flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:var(--display);font-size:30px;font-weight:900;text-transform:uppercase}
+  #tourne span{font-family:var(--body);font-size:15px;font-weight:400;text-transform:none;color:var(--mute)}
+}
+/* petits écrans en paysage : HUD compact, placé hors des zones des pouces */
+@media (max-height:520px){
+  #tower{display:none}
+  .hud-tl{top:8px}
+  .posbox b{font-size:38px}.posbox span{font-size:17px}
+  .hud-tr{top:8px;padding:5px 10px;gap:0 12px}
+  .hud-tr .label{font-size:9px}.hud-tr .num{font-size:15px}.hud-tr #tCur{font-size:19px}
+  .hud-tr>span:nth-child(3),.hud-tr>span:nth-child(4),.hud-tr>span:nth-child(7),.hud-tr>span:nth-child(8){display:none}
+  .hud-bl{left:max(16px,env(safe-area-inset-left,0px));right:auto;top:72px;bottom:auto;padding:3px}
+  #mini{width:84px;height:84px}
+  .hud-br{right:auto;left:50%;bottom:4px;transform:translateX(-50%) scale(.55);transform-origin:bottom center}
+  #lights{gap:8px;padding:8px 12px}#lights i{width:24px;height:24px}
+  h1{font-size:26px}
+  .sub{font-size:12px;margin:0}
+  .col{gap:5px;width:min(380px,100%)}
+  .keys{display:none}
+  .item{padding:3px 12px;font-size:14px}.item.primary{font-size:18px}
+  h2{font-size:22px}
+}
 @media (prefers-reduced-motion:no-preference){
   #banner{transition:opacity .25s}
 }
@@ -184,6 +230,13 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
     <div id="wrong" hidden>CONTRESENS</div>
   </div>
 
+  <div id="tactile" hidden>
+    <div id="tBase"><div id="tStick"></div></div>
+    <div class="tb" id="tFrein">Frein</div><div class="tb" id="tDrift">Drift</div><div class="tb" id="tNitro">Nitro</div><div class="tb" id="tGaz">Gaz</div>
+    <div class="tb" id="tPause">Pause</div><div class="tb" id="tVue">Vue</div>
+  </div>
+  <div id="tourne">Tourne ton téléphone<span>Le jeu se joue en mode paysage.</span></div>
+
   <div id="menu" class="layer screen">
     <div class="col">
       <h1>Valmont <em>Grand Prix</em></h1>
@@ -200,6 +253,7 @@ kbd{font-family:var(--num);font-weight:600;font-size:14px;padding:1px 6px;border
         <button class="item" data-act="audio">Réglages audio</button>
         <button class="item" data-act="board">Classements</button>
         <button class="item" data-act="gfxs">Graphismes</button>
+        <button class="item" data-act="plein" id="bPlein" hidden>Plein écran</button>
       </div>
       <span class="pill" id="padPill">Manette : appuie sur un bouton pour l'activer</span>
       <p class="sub credits">Modèles 3D : « Ferrari F599 | Low Poly Stylized » par kulonee (Sketchfab, CC BY 4.0).</p>
@@ -345,8 +399,9 @@ function fmt(t){ if(t==null||!isFinite(t)) return '–:––.–––'; var m=
 var TRACKS=[
  {key:'valmont',name:'Valmont',sub:'collines, plein jour',env:'day',S:1.45,pads:[[0.36,0],[0.72,0]],
   pts:[[0,0],[120,0],[200,10],[250,60],[240,130],[180,160],[120,130],[60,150],[20,210],[-60,230],[-130,190],[-140,120],[-170,50],[-130,0],[-60,-5]]},
- {key:'saphir',name:'Port-Saphir',sub:'ville portuaire, de nuit',env:'night',S:1.25,pads:[[0.05,-3],[0.31,2.5],[0.585,0],[0.87,-2.5]],
-  pts:[[0,0],[140,0],[240,0],[300,15],[322,60],[295,102],[235,100],[170,82],[120,104],[75,84],[30,102],[0,145],[22,195],[85,205],[140,172],[200,190],[252,240],[205,292],[125,272],[60,292],[-20,270],[-70,210],[-58,130],[-92,70],[-70,12]]},
+ {key:'saphir',name:'Port-Saphir Pluie',sub:'ville portuaire, de nuit',env:'night',S:1,pads:[[0.01624,-1.8],[0.08187,-1.7],[0.26319,2.5],[0.48782,0],[0.66441,-0.6],[0.78958,-0.7],[0.83424,-0.1],[0.90122,-2.5]],
+  pts:[[0,0],[175.8,-59.6],[300,0],[375,18.8],[402.5,75],[368.8,127.5],[293.8,125],[212.5,102.5],[150,130],[93.8,105],[37.5,127.5],[0,181.3],[27.5,243.8],[106.3,256.3],[175,215],[250,237.5],[430.6,312.4],[446.1,386.3],[405.6,429.4],[259.1,408.9],[187.4,396],[132.2,461.1],[75.5,509.8],[27.1,494.1],[-3.5,436.3],[0.3,379.9],[-2.1,336.2],[-38,300.9],[-87.5,262.5],[-72.5,162.5],[-115,87.5],[-72.2,37.1]],
+  musique:'musique-saphir',details:2,lumiere:{zen:'#5d6672',hor:'#9aa3ad',sunAz:53,sunEl:48,sunCol:'#c9d2dc',sunI:1.1,night:0.15,cloud:1,cloudCol:'#8b939c',mnt:'#5a6470',amb:0.75,fog:'#9aa3ad',vis:1100,exp:0.8},meteo:{type:'pluie',force:0.6,vent:0.3,adh:0.88},semis:[['immeuble',80,15,180,0.8,1.3],['tour',80,20,180,0.8,1.3],['lampadaire',80,20,180,0.8,1.3],['projecteur',80,20,180,0.8,1.3]]},
  {key:'ocre',name:'Canyon Ocre',sub:'désert, au crépuscule',env:'dusk',S:1.3,pads:[[0.045,3],[0.25,0],[0.52,-2.5],[0.755,2.5]],
   pts:[[0,0],[160,0],[300,-10],[380,40],[400,130],[340,200],[255,182],[195,232],[222,310],[160,370],[62,350],[22,282],[-60,262],[-140,300],[-222,260],[-232,170],[-162,122],[-182,50],[-120,2]]},
  {key:'snowycircuit',name:'snowy circuit',sub:'campagne',env:'day',S:1,pads:[[0.29423,1.2],[0.50596,1.8],[0.63718,0.5],[0.93439,0.3]],
@@ -385,10 +440,11 @@ catch(e){ fatal("WebGL n'est pas disponible dans ce navigateur."); return; }
    Pour chaque niveau : [résolution, lissage des bords (0, 2 ou 4), halo lumineux (bloom), taille des ombres (0 = sans), phares des autres voitures, quantité de décors]
    Résolution : en dessous de 1, l'image est calculée plus petite puis agrandie (0.7 = 70 %). Au-dessus, c'est la limite sur les écrans très fins. */
 var QUALITES=[null,[0.5,0,false,0,false,0.3],[0.7,0,false,0,false,0.5],[0.85,2,true,1024,false,0.75],[1.5,4,true,2048,true,1]], NOMS_QUALITE=['Auto','Minimale','Basse','Moyenne','Haute'], MAXQ=4;
-var gfx={choix:0,niveau:MAXQ,fps:false};
+var TACTILE_SEUL=!!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);   /* téléphone ou tablette */
+var gfx={choix:0,niveau:TACTILE_SEUL?1:MAXQ,fps:false};   /* sur téléphone, le mode Auto démarre en Minimale */
 try{ var sg=JSON.parse(localStorage.getItem('valmont_gfx')||'null'); if(sg){ gfx.choix=Math.max(0,Math.min(MAXQ,sg.choix|0)); gfx.fps=!!sg.fps; gfx.niveau=gfx.choix||Math.max(1,Math.min(MAXQ,(sg.auto|0)||MAXQ)); } }catch(e){}
 function Q(){ return QUALITES[gfx.niveau]; }
-function ratioPixels(){ var q=Q()[0], d=window.devicePixelRatio||1; return q<1?q:Math.min(d,q); }
+function ratioPixels(){ var q=Q()[0], d=window.devicePixelRatio||1; return q<1?q*(TACTILE_SEUL?Math.min(d,1.5):1):Math.min(d,q); }   /* les écrans de téléphone sont très fins : on y garde un peu plus de pixels */
 function sauverGfx(){ try{ localStorage.setItem('valmont_gfx',JSON.stringify({choix:gfx.choix,auto:gfx.niveau,fps:gfx.fps})); }catch(e){} }
 window.VGP_DECO=Q()[5];
 renderer.setPixelRatio(ratioPixels());
@@ -1176,15 +1232,17 @@ finalMat=pmat({tScene:{value:null},tBloom:{value:null},uBlur:{value:0},uTime:{va
  ' col*=mix(0.70,1.0,smoothstep(0.86,0.28,length(c)));',
  ' col+=(h(vUv*vec2(1731.0,977.0)+uTime)-0.5)*0.022;',
  ' gl_FragColor=vec4(col,1.0); }'].join('\n'));
+/* image en haute précision si l'appareil le permet, sinon image normale (certains téléphones anciens) */
+var TYPE_HDR=(function(){ try{ var x=renderer.extensions, ok=renderer.capabilities.isWebGL2?(x.get('EXT_color_buffer_half_float')||x.get('EXT_color_buffer_float')):(x.get('OES_texture_half_float')&&x.get('EXT_color_buffer_half_float')); return ok?THREE.HalfFloatType:THREE.UnsignedByteType; }catch(e){ return THREE.UnsignedByteType; } })();
 var rtScene,rtA,rtB, BW=1, BH=1;
 function resize(){
   var w=canvas.clientWidth||window.innerWidth, h=canvas.clientHeight||window.innerHeight;
   renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
   var v=renderer.getDrawingBufferSize(new THREE.Vector2()); BW=Math.max(2,v.x|0); BH=Math.max(2,v.y|0);
   if(rtScene){ rtScene.dispose(); rtA.dispose(); rtB.dispose(); }
-  var o={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:THREE.HalfFloatType};
+  var o={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:TYPE_HDR};
   if(renderer.capabilities.isWebGL2&&Q()[1]>0){ rtScene=new THREE.WebGLMultisampleRenderTarget(BW,BH,o); rtScene.samples=Q()[1]; } else rtScene=new THREE.WebGLRenderTarget(BW,BH,o);
-  var o2={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:THREE.HalfFloatType,depthBuffer:false};
+  var o2={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:TYPE_HDR,depthBuffer:false};
   rtA=new THREE.WebGLRenderTarget(Math.max(1,BW>>2),Math.max(1,BH>>2),o2); rtB=new THREE.WebGLRenderTarget(Math.max(1,BW>>2),Math.max(1,BH>>2),o2);
   pMat.uniforms.uScale.value=BH*0.8;
 }
@@ -1638,13 +1696,49 @@ function onLine(c){
   c.lapStart=raceTime;
   if(c.laps>=totalLaps){ c.finished=true; c.finishTime=raceTime; if(isP){ c.auto=true; c.ai.pace=0.7; state='finished'; finishDelay=2.4; blip(880,0.25,0.1); } }
 }
+/* ================= Contrôles tactiles =================
+   Joystick à gauche (il apparaît là où le pouce se pose), boutons à droite.
+   Drift et Nitro accélèrent aussi : le pouce droit passe d'un bouton à l'autre sans lâcher les gaz. */
+var TAC_RAYON=56;        /* course du joystick en pixels : plus petit = direction plus vive */
+var TAC_COURBE=1.25;     /* 1 = direction proportionnelle ; plus grand = plus douce près du centre */
+var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{}};
+(function(){
+  var el=$('tactile'), base=$('tBase'), stick=$('tStick'), noms=['tGaz','tDrift','tNitro','tFrein','tPause','tVue'];
+  function bouton(x,y){ var best=null, bd=1e9; noms.forEach(function(id){ var r=$(id).getBoundingClientRect(), d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2))-Math.max(r.width,r.height)/2; if(d<20&&d<bd){ bd=d; best=id; } }); return best; }
+  function maj(){ var g=false,d=false,n=false,f=false,k,b; for(k in tac.doigts){ b=tac.doigts[k]; if(b==='tGaz') g=true; else if(b==='tDrift') d=true; else if(b==='tNitro') n=true; else if(b==='tFrein') f=true; }
+    tac.thr=(g||d||n)?1:0; tac.hand=d; tac.nitro=n; tac.brk=f?1:0;
+    $('tGaz').classList.toggle('on',g); $('tDrift').classList.toggle('on',d); $('tNitro').classList.toggle('on',n); $('tFrein').classList.toggle('on',f); }
+  function lacherStick(){ tac.stick=null; tac.steer=0; stick.style.transform=''; base.style.left=''; base.style.top=''; base.style.bottom=''; }
+  tac.vider=function(){ tac.doigts={}; lacherStick(); maj(); };
+  el.addEventListener('touchstart',function(e){ e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
+      if(t.clientX<window.innerWidth*0.45&&!tac.stick){ tac.stick={id:t.identifier,x:t.clientX,y:t.clientY}; base.style.left=(t.clientX-66)+'px'; base.style.top=(t.clientY-66)+'px'; base.style.bottom='auto'; }
+      else { var b=bouton(t.clientX,t.clientY); if(b==='tPause') act('pause'); else if(b==='tVue') act('cam'); else tac.doigts[t.identifier]=b; } }
+    maj(); },{passive:false});
+  el.addEventListener('touchmove',function(e){ e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
+      if(tac.stick&&t.identifier===tac.stick.id){ var dx=clamp((t.clientX-tac.stick.x)/TAC_RAYON,-1,1), dy=clamp((t.clientY-tac.stick.y)/TAC_RAYON,-1,1), a=Math.abs(dx);
+        stick.style.transform='translate('+(dx*TAC_RAYON*0.8)+'px,'+(dy*TAC_RAYON*0.3)+'px)'; tac.steer=a<0.08?0:-Math.sign(dx)*Math.pow((a-0.08)/0.92,TAC_COURBE); }
+      else if(t.identifier in tac.doigts){ var b=bouton(t.clientX,t.clientY); tac.doigts[t.identifier]=(b==='tPause'||b==='tVue')?null:b; } }
+    maj(); },{passive:false});
+  function fin(e){ e.preventDefault(); for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i]; if(tac.stick&&t.identifier===tac.stick.id) lacherStick(); delete tac.doigts[t.identifier]; } maj(); }
+  el.addEventListener('touchend',fin,{passive:false}); el.addEventListener('touchcancel',fin,{passive:false});
+  /* les contrôles tactiles ne s'affichent qu'après un premier toucher : rien ne change à la souris ou à la manette */
+  window.addEventListener('touchstart',function(){ if(tac.on) return; tac.on=true; document.body.classList.add('tactile'); if(document.documentElement.requestFullscreen) $('bPlein').hidden=false; },{passive:true,capture:true});
+})();
+function majTactile(){
+  var voir=tac.on&&(state==='race'||state==='countdown')&&!curScreen, el=$('tactile');
+  if(el.hidden===voir){ el.hidden=!voir; if(!voir) tac.vider(); }
+  if(voir&&!online&&window.innerHeight>window.innerWidth) pauseGame();   /* téléphone remis en portrait : pause */
+  if(tac.on&&gfx.fps) fpsEl.style.top='44px';
+}
 function playerControl(c,dt){
   if(curScreen){ c.throttle=0; c.brake=0; c.hand=0; c.nitroOn=false; c.steer+=(0-c.steer)*Math.min(1,dt*6); return; }
   var kl=K.ArrowLeft||K.KeyA, kr=K.ArrowRight||K.KeyD, st, rate;
-  if(kl||kr){ st=(kl?1:0)-(kr?1:0); rate=6.5; } else { st=pad.steer; rate=18; }
+  if(kl||kr){ st=(kl?1:0)-(kr?1:0); rate=6.5; } else if(tac.stick){ st=tac.steer; rate=16; } else { st=pad.steer; rate=18; }
   c.steer+=(st-c.steer)*Math.min(1,dt*rate);
-  c.throttle=Math.max((K.ArrowUp||K.KeyW)?1:0,pad.thr); c.brake=Math.max((K.ArrowDown||K.KeyS)?1:0,pad.brk); c.hand=(K.Space||pad.hand)?1:0;
-  c.nitroOn=!!(K.ShiftLeft||K.ShiftRight||pad.nitro);
+  c.throttle=Math.max((K.ArrowUp||K.KeyW)?1:0,pad.thr,tac.thr); c.brake=Math.max((K.ArrowDown||K.KeyS)?1:0,pad.brk,tac.brk); c.hand=(K.Space||pad.hand||tac.hand)?1:0;
+  c.nitroOn=!!(K.ShiftLeft||K.ShiftRight||pad.nitro||tac.nitro);
 }
 function aiControl(c,dt){
   var f=c.f, look=Math.floor(clamp((11+f*0.62)/ds,5,32)), j=(c.idx+look)%N;
@@ -1927,6 +2021,9 @@ OPTS.qualite=OPTS.fps=1;
 handlers.gfxs=function(){ openScreen('gfx'); };
 handlers.qualite=function(d){ gfx.choix=(gfx.choix+d+MAXQ+1)%(MAXQ+1); fpsBas=-6; appliquerQualite(gfx.choix||MAXQ,true); sauverGfx(); majGfx(); };
 handlers.fps=function(){ gfx.fps=!gfx.fps; sauverGfx(); majGfx(); };
+handlers.plein=function(){ var d=document.documentElement;
+  if(document.fullscreenElement){ document.exitFullscreen(); return; }
+  if(d.requestFullscreen) d.requestFullscreen().then(function(){ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').catch(function(){}); }).catch(function(){}); };
 SCREENS.push('gfx');
 majGfx();
 /* ===== VGP-MODULE-EDITEUR v5 : circuits créés avec editeur.html ===== */
@@ -2395,7 +2492,7 @@ function updateCamera(dt,time){
 var last=performance.now(), accT=0, STEP=1/120;
 function frame(now){
   requestAnimationFrame(frame);
-  var brut=(now-last)/1000, dt=Math.min(0.05,brut); last=now; var time=now/1000; mesureFps(brut);
+  var brut=(now-last)/1000, dt=Math.min(0.05,brut); last=now; var time=now/1000; mesureFps(brut); majTactile();
   pollPad();
   if(state==='countdown'||state==='race'||state==='finished'||state==='results'){
     accT+=dt; var n=0; while(accT>=STEP&&n<8){ simulate(STEP); accT-=STEP; n++; } if(n===8) accT=0;
