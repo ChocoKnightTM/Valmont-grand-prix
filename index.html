@@ -5,9 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<style>html{height:100%}body{margin:0}[hidden]{display:none!important}</style>
+<style>html{height:100%}body{margin:0}[hidden]{display:none!important}#pubSimu[hidden]{display:none!important}</style>
 <title>Valmont Grand Prix</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Big+Shoulders+Display:wght@700;900&display=swap">
+<style>
+/* polices embarquées dans le jeu (dossier fonts/) : aucune requête vers internet */
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/barlow-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-condensed-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/big-shoulders-display-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:900;font-display:swap;src:url(fonts/big-shoulders-display-latin-900-normal.woff2) format('woff2')}
+</style>
 <style>
 
 #lb{margin:14px auto 0;max-width:340px;text-align:left}
@@ -246,9 +256,9 @@ body.tactile .keys{display:none}
         <button class="item" data-act="track">Circuit <span class="v" id="vTrack"></span></button>
         <button class="item" data-act="diff">Niveau des bots <span class="v" id="vDiff"></span></button>
         <button class="item" data-act="laps">Tours <span class="v" id="vLaps"></span></button>
-        <button class="item" data-act="color">Carrosserie <span class="v" id="vColor"></span></button>
+        <button class="item" data-act="skin">Voiture <span class="v" id="vColor"></span></button>
+        <button class="item" data-act="garage">Garage <span class="n" id="vCles"></span></button>
         <button class="item" data-act="sound">Son <span class="v" id="vSound"></span></button>
-        <button class="item" data-act="model">Modèle <span class="v" id="vModel"></span></button>
         <button class="item" data-act="audio">Réglages audio</button>
         <button class="item" data-act="board">Classements</button>
         <button class="item" data-act="gfxs">Graphismes</button>
@@ -303,7 +313,8 @@ body.tactile .keys{display:none}
         <button class="item" id="lLaps" data-act="llaps">Tours <span class="v" id="vLLaps"></span></button>
         <button class="item" id="lBots" data-act="lbots">Bots <span class="v" id="vLBots"></span></button>
         <button class="item" id="lDiff" data-act="ldiff">Niveau des bots <span class="v" id="vLDiff"></span></button>
-        <button class="item" data-act="color">Carrosserie <span class="v" id="vColor2"></span></button>
+        <button class="item" data-act="skin">Voiture <span class="v" id="vColor2"></span></button>
+        <button class="item" data-act="garage">Garage <span class="n" id="vCles2"></span></button>
         <button class="item" data-act="copy">Copier le lien d'invitation <span class="n" id="vCopy"></span></button>
         <button class="item" data-act="leave">Quitter le salon</button>
       </div>
@@ -342,6 +353,21 @@ body.tactile .keys{display:none}
       </div>
     </div>
   </div>
+  <div id="garage" class="layer screen" hidden>
+    <div class="col">
+      <h2>Garage</h2>
+      <p class="sub" id="gCles"></p>
+      <div class="items">
+        <button class="item" data-act="gvoir">Voiture <span class="v" id="gNom"></span></button>
+        <button class="item primary" data-act="gchoisir" id="gAction">Choisir</button>
+        <button class="item" data-act="gpub" id="gPub" hidden>Regarder une pub <span class="n" id="gPubGain"></span></button>
+        <button class="item" data-act="gconf" id="gConf" hidden>Confidentialité des pubs</button>
+        <button class="item" data-act="gretour">Retour</button>
+      </div>
+      <p class="sub" id="gInfo"></p>
+    </div>
+  </div>
+  <div id="pubSimu" hidden style="position:fixed;inset:0;z-index:200;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:600 22px sans-serif;text-align:center">Publicité (simulation)</div>
   <div id="touches" class="layer screen dim" hidden>
     <div class="col">
       <h2>Touches</h2>
@@ -368,6 +394,7 @@ body.tactile .keys{display:none}
       <div class="items">
         <button class="item" data-act="qualite">Qualité <span class="v" id="vQualite"></span></button>
         <button class="item" data-act="fps">Afficher les FPS <span class="v" id="vFps"></span></button>
+        <button class="item" data-act="vib">Vibrations (téléphone) <span class="v" id="vVib"></span></button>
         <button class="item" data-act="menu">Retour</button>
       </div>
       <p class="sub" id="gfxInfo"></p>
@@ -396,8 +423,8 @@ body.tactile .keys{display:none}
   <div id="fatal" class="layer" hidden><p id="fatalMsg"></p></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
 <script>
 (function(){
 'use strict';
@@ -443,6 +470,28 @@ var ENVS={
  dusk:{zen:[0.09,0.11,0.36],hor:[0.95,0.44,0.19],glow:[1.0,0.45,0.15],disc:45,night:0.3,cloud:0.75,cA:[0.24,0.17,0.27],cB:[1.35,0.62,0.30],mnt:[0.17,0.07,0.06],gnd:[0.20,0.10,0.05],
       sun:[0.80,0.17,0.30],sunCol:[1.0,0.56,0.28],sunI:3.4,hemiS:[0.50,0.42,0.62],hemiG:[0.30,0.16,0.08],hemiI:0.45,fog:[0.78,0.42,0.25],fogN:320,fogF:2300,exp:0.82,spot:0.4}
 };
+/* ================= GARAGE : les voitures du jeu =================
+   Pour ajouter une voiture, ajoute une ligne dans SKINS :
+     id      : un nom court et unique, sans espace. Ne le change plus ensuite, il sert à retenir ce que le joueur a débloqué.
+     nom     : le nom affiché dans le garage.
+     modele  : le numéro du modèle 3D dans la liste MODELES (0 = voiture-1.glb, 1 = voiture-2.glb, 2 = voiture-3.glb).
+               Pour un nouveau modèle : ajoute son fichier dans modeles/, une ligne dans MODELES, puis utilise son numéro ici.
+     couleur : la couleur de la carrosserie, sous la forme 0xRRVVBB.
+     prix    : le nombre de clés pour la débloquer (0 = gratuite dès le départ).
+   Les clés se gagnent en course (GARAGE_CLES_VICTOIRE, GARAGE_CLES_PODIUM) et en regardant une pub (GARAGE_CLES_PUB). */
+var SKINS=[
+  {id:'rouge',     nom:'Rouge Valmont',    modele:0, couleur:0xc4161c, prix:0},
+  {id:'bleu',      nom:'Bleu Nuit',        modele:0, couleur:0x14419c, prix:0},
+  {id:'blanc',     nom:'Blanc Nacré',      modele:0, couleur:0xe6e7ea, prix:0},
+  {id:'jaune',     nom:'Jaune Signal',     modele:1, couleur:0xf2b705, prix:2},
+  {id:'vert',      nom:'Vert Anglais',     modele:1, couleur:0x0f5a36, prix:2},
+  {id:'orange',    nom:'Orange Papaye',    modele:1, couleur:0xff6a13, prix:3},
+  {id:'violet',    nom:'Violet Améthyste', modele:2, couleur:0x6a2bb8, prix:4},
+  {id:'turquoise', nom:'Turquoise',        modele:2, couleur:0x0fb5a8, prix:4},
+  {id:'carbone',   nom:'Noir Carbone',     modele:2, couleur:0x16181d, prix:6},
+  {id:'or',        nom:'Or Champion',      modele:2, couleur:0xd4a017, prix:10}
+];
+var GARAGE_CLES_VICTOIRE=2, GARAGE_CLES_PODIUM=1, GARAGE_CLES_PUB=1;
 var PAINTS=[['Rouge Valmont',0xc4161c],['Bleu Nuit',0x14419c],['Jaune Signal',0xf2b705],['Vert Anglais',0x0f5a36],['Blanc Nacré',0xe6e7ea],['Orange Papaye',0xff6a13],['Violet Améthyste',0x6a2bb8],['Turquoise',0x0fb5a8]];
 var NAMES=[['L. Brandt','BRA'],['M. Okafor','OKA'],['S. Lindqvist','LIN'],['T. Arakaki','ARA'],['J. Peeters','PEE'],['R. Castelain','CAS'],['N. Varga','VAR']];
 var DIFFS=[['Normal',0.87,0.93,0.95],['Difficile',0.92,0.975,0.98],['Expert',0.96,1.0,1.0]], LAPS=[3,5,7];
@@ -460,11 +509,11 @@ catch(e){ fatal("WebGL n'est pas disponible dans ce navigateur."); return; }
    Résolution : en dessous de 1, l'image est calculée plus petite puis agrandie (0.7 = 70 %). Au-dessus, c'est la limite sur les écrans très fins. */
 var QUALITES=[null,[0.5,0,false,0,false,0.3],[0.7,0,false,0,false,0.5],[0.85,2,true,1024,false,0.75],[1.5,4,true,2048,true,1]], NOMS_QUALITE=['Auto','Minimale','Basse','Moyenne','Haute'], MAXQ=4;
 var TACTILE_SEUL=!!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);   /* téléphone ou tablette */
-var gfx={choix:0,niveau:TACTILE_SEUL?1:MAXQ,fps:false};   /* sur téléphone, le mode Auto démarre en Minimale */
-try{ var sg=JSON.parse(localStorage.getItem('valmont_gfx')||'null'); if(sg){ gfx.choix=Math.max(0,Math.min(MAXQ,sg.choix|0)); gfx.fps=!!sg.fps; gfx.niveau=gfx.choix||Math.max(1,Math.min(MAXQ,(sg.auto|0)||MAXQ)); } }catch(e){}
+var gfx={choix:0,niveau:TACTILE_SEUL?1:MAXQ,fps:false,vib:true};   /* sur téléphone, le mode Auto démarre en Minimale */
+try{ var sg=JSON.parse(localStorage.getItem('valmont_gfx')||'null'); if(sg){ gfx.choix=Math.max(0,Math.min(MAXQ,sg.choix|0)); gfx.fps=!!sg.fps; gfx.vib=sg.vib!==false; gfx.niveau=gfx.choix||Math.max(1,Math.min(MAXQ,(sg.auto|0)||MAXQ)); } }catch(e){}
 function Q(){ return QUALITES[gfx.niveau]; }
 function ratioPixels(){ var q=Q()[0], d=window.devicePixelRatio||1; return q<1?q*(TACTILE_SEUL?Math.min(d,1.5):1):Math.min(d,q); }   /* les écrans de téléphone sont très fins : on y garde un peu plus de pixels */
-function sauverGfx(){ try{ localStorage.setItem('valmont_gfx',JSON.stringify({choix:gfx.choix,auto:gfx.niveau,fps:gfx.fps})); }catch(e){} }
+function sauverGfx(){ try{ localStorage.setItem('valmont_gfx',JSON.stringify({choix:gfx.choix,auto:gfx.niveau,fps:gfx.fps,vib:gfx.vib})); }catch(e){} }
 window.VGP_DECO=Q()[5];
 renderer.setPixelRatio(ratioPixels());
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1304,6 +1353,7 @@ function renderFrame(time){
 
 /* ================= Options / state ================= */
 var opt={track:0,diff:1,laps:0,color:0,sound:true}, record=null;
+SKINS.forEach(function(k){ var i, pi=-1; for(i=0;i<PAINTS.length;i++) if(PAINTS[i][1]===k.couleur) pi=i; if(pi<0){ PAINTS.push([k.nom,k.couleur]); pi=PAINTS.length-1; } k.pi=pi; });
 try{ var sv=JSON.parse(localStorage.getItem('valmont_opt2')||'null'); if(sv){ opt.track=clamp(sv.track|0,0,2); opt.diff=clamp(sv.diff|0,0,2); opt.laps=clamp(sv.laps|0,0,2); opt.color=clamp(sv.color|0,0,PAINTS.length-1); opt.sound=sv.sound!==false; } }catch(e){}
 function saveOpt(){ try{ localStorage.setItem('valmont_opt2',JSON.stringify(opt)); }catch(e){} }
 var state='menu', prevState='race', raceTime=0, green=false, cdT=0, cdHold=4.6, totalLaps=3, raceBest=null, camMode=0, camH=0, finishShown=false, finishDelay=0, wrongT=0, online=false;
@@ -1348,7 +1398,7 @@ function act(name){
   if(curScreen){
     if(name==='up') moveFocus(-1); else if(name==='down') moveFocus(1);
     else if(name==='left') activate(-1); else if(name==='right') activate(1); else if(name==='ok') activate(0);
-    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board'||id==='gfx'||id==='touches') handlers.menu(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
+    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board'||id==='gfx'||id==='touches') handlers.menu(); else if(id==='garage') handlers.gretour(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
     return;
   }
   if(name==='pause') pauseGame();
@@ -1438,7 +1488,15 @@ function pollPad(){
   var now={ok:!!m.ok,back:!!m.back,reset:!!m.reset,cam:!!m.cam,pause:!!m.pause,up:!!m.up||m.sy<-0.6,down:!!m.down||m.sy>0.6,left:!!m.left||m.sx<-0.6,right:!!m.right||m.sx>0.6};
   for(var k in now){ if(now[k]&&!padPrev[k]){ initAudio(); act(k); } padPrev[k]=now[k]; }
 }
+/* vibration du téléphone : chocs, boosts et départs seulement (pas le roulement sur l'herbe) */
+var vibT=0;
+function vibrer(force,ms){
+  if(!gfx.vib||!(force>=0.3)) return; var t=performance.now(); if(t<vibT) return; vibT=t+140;
+  var C=window.Capacitor, H=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Haptics;
+  try{ if(H) H.impact({style:force>0.75?'HEAVY':(force>0.45?'MEDIUM':'LIGHT')}); else if(tac.on&&navigator.vibrate) navigator.vibrate(Math.round(clamp(ms*0.4,12,90))); }catch(e){}
+}
 function rumble(strong,weak,ms){
+  vibrer(strong,ms);
   var t=performance.now(); if(t<rumbleT||!padRef) return; rumbleT=t+ms*0.8;
   try{ var va=padRef.vibrationActuator; if(va&&va.playEffect){ var pr=va.playEffect('dual-rumble',{duration:ms,strongMagnitude:clamp(strong,0,1),weakMagnitude:clamp(weak,0,1)}); if(pr&&pr.catch) pr.catch(function(){}); } }catch(e){}
 }
@@ -1456,7 +1514,7 @@ $('app').addEventListener('click',function(e){ var el=e.target.closest?e.target.
 $('app').addEventListener('mouseover',function(e){ var el=e.target.closest?e.target.closest('.item'):null; if(!el||!curScreen) return; var k=itemsOf().indexOf(el); if(k>=0&&k!==focusIdx) setFocus(k); });
 function refreshOptLabels(){
   $('vTrack').textContent=TRACKS[opt.track].name; $('vDiff').textContent=DIFFS[opt.diff][0]; $('vLaps').textContent=LAPS[opt.laps];
-  $('vColor').textContent=$('vColor2').textContent=PAINTS[opt.color][0];
+  $('vColor').textContent=$('vColor2').textContent=(typeof skinActuel==='function'&&garage)?skinActuel().nom:PAINTS[opt.color][0];
   $('vSound').textContent=$('vSound2').textContent=opt.sound?'Activé':'Coupé';
   $('trkSub').textContent=TRK.name+' : '+(total/1000).toFixed(1).replace('.',',')+' km, '+TRK.sub+'. Huit voitures, tu pars dernier sur la grille.';
 }
@@ -2046,7 +2104,7 @@ function setMod(c,m){
 }
 function majReglages(){
   $('vVol').textContent=opt.vol*10+' %'; $('vMus').textContent=opt.mus*10+' %'; $('vEng').textContent=opt.eng*10+' %';
-  $('vModel').textContent='Voiture '+(opt.model+1);
+  if($('vModel')) $('vModel').textContent='Voiture '+(opt.model+1);
   if(master) master.gain.value=volMaster();
 }
 function classementMenu(){
@@ -2070,13 +2128,98 @@ majReglages();
 var INFOS_QUALITE=['','Image à 50 %, sans ombres ni halo lumineux, très peu de décors : pour les PC les plus modestes.','Image à 70 %, sans ombres ni halo lumineux, moitié moins de décors : pour les PC sans carte graphique.','Image à 85 %, ombres simples, un peu moins de décors.','Tous les effets : pour les PC de jeu.'];
 function majGfx(){
   $('vQualite').textContent=NOMS_QUALITE[gfx.choix]+(gfx.choix===0?' ('+NOMS_QUALITE[gfx.niveau].toLowerCase()+')':'');
-  $('vFps').textContent=gfx.fps?'Oui':'Non'; fpsEl.style.display=gfx.fps?'block':'none';
+  $('vFps').textContent=gfx.fps?'Oui':'Non'; fpsEl.style.display=gfx.fps?'block':'none'; $('vVib').textContent=gfx.vib?'Oui':'Non';
   $('gfxInfo').textContent=(gfx.choix===0?'Réglage trouvé automatiquement. ':'')+INFOS_QUALITE[gfx.niveau];
 }
-OPTS.qualite=OPTS.fps=1;
+OPTS.qualite=OPTS.fps=OPTS.vib=1;
+handlers.vib=function(){ gfx.vib=!gfx.vib; sauverGfx(); majGfx(); if(gfx.vib) vibrer(1,200); };
 handlers.gfxs=function(){ openScreen('gfx'); };
 handlers.qualite=function(d){ gfx.choix=(gfx.choix+d+MAXQ+1)%(MAXQ+1); fpsBas=-6; appliquerQualite(gfx.choix||MAXQ,true); sauverGfx(); majGfx(); };
 handlers.fps=function(){ gfx.fps=!gfx.fps; sauverGfx(); majGfx(); };
+/* ================= PUBS : application mobile seulement (Capacitor + plugin @capacitor-community/admob) =================
+   Dans le navigateur, il n'y a aucune pub. Pour essayer le parcours sur PC, ajoute ?pubtest à l'adresse du jeu : une fausse pub de 3 secondes s'affiche. */
+var PUB_TEST=true;            /* true = pubs d'essai de Google. À passer à false uniquement pour la version publiée sur les magasins. */
+var PUB_RECOMPENSE={android:'ca-app-pub-3940256099942544/5224354917',ios:'ca-app-pub-3940256099942544/1712485313'};      /* tes blocs « Avec récompense » (ici : identifiants d'essai de Google) */
+var PUB_ENTRE_COURSES={android:'ca-app-pub-3940256099942544/1033173712',ios:'ca-app-pub-3940256099942544/4411468910'};   /* tes blocs « Interstitiel » */
+var PUB_TOUTES_LES=3;         /* une pub plein écran toutes les 3 courses terminées hors ligne ; 0 = jamais */
+var pubs={pret:false,plugin:null,courses:0,suite:null,gagne:false,options:false,simul:/[?&]pubtest\b/.test(location.search)};
+function pubPlateforme(){ var C=window.Capacitor; return (C&&C.getPlatform&&C.getPlatform()==='ios')?'ios':'android'; }
+function pubSon(coupe){ try{ if(AC){ if(coupe) AC.suspend(); else if(opt.sound) AC.resume(); } }catch(e){} }
+function pubFin(ok){ var f=pubs.suite; pubs.suite=null; pubSon(false); if(f) f(!!ok); }
+function pubInit(){
+  var C=window.Capacitor, A=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob; if(!A) return;
+  pubs.plugin=A;
+  try{
+    A.addListener('onRewardedVideoAdReward',function(){ pubs.gagne=true; });
+    A.addListener('onRewardedVideoAdDismissed',function(){ pubFin(pubs.gagne); });
+    A.addListener('onRewardedVideoAdFailedToShow',function(){ pubFin(false); });
+    A.addListener('onRewardedVideoAdFailedToLoad',function(){ pubFin(false); });
+    A.addListener('interstitialAdDismissed',function(){ pubSon(false); });
+    A.addListener('interstitialAdFailedToShow',function(){ pubSon(false); });
+  }catch(e){}
+  /* démarrage, puis consentement (RGPD en Europe, suivi publicitaire sur iPhone) */
+  A.initialize({initializeForTesting:PUB_TEST})
+    .then(function(){ return A.requestConsentInfo(); })
+    .then(function(info){ pubs.options=!!info&&info.privacyOptionsRequirementStatus==='REQUIRED'; if(info&&info.isConsentFormAvailable&&info.status==='REQUIRED') return A.showConsentForm(); })
+    .then(function(){ if(pubPlateforme()==='ios'&&A.requestTrackingAuthorization) return A.requestTrackingAuthorization(); })
+    .catch(function(){})
+    .then(function(){ pubs.pret=true; majGarage(); });
+}
+function pubDispo(){ return pubs.simul||(pubs.pret&&!!pubs.plugin); }
+/* montre une pub récompensée ; suite(true) si le joueur l'a regardée jusqu'au bout */
+function pubRecompense(suite){
+  if(pubs.suite){ return; } pubs.suite=suite; pubs.gagne=false; pubSon(true);
+  if(pubs.simul&&!pubs.plugin){ $('pubSimu').hidden=false; setTimeout(function(){ $('pubSimu').hidden=true; pubFin(true); },3000); return; }
+  var A=pubs.plugin; if(!A||!pubs.pret){ pubFin(false); return; }
+  A.prepareRewardVideoAd({adId:PUB_RECOMPENSE[pubPlateforme()],isTesting:PUB_TEST}).then(function(){ return A.showRewardVideoAd(); }).then(function(r){ if(r) pubs.gagne=true; }).catch(function(){ pubFin(false); });
+}
+function pubEntreCourses(){
+  var A=pubs.plugin; if(!A||!pubs.pret||online||!(PUB_TOUTES_LES>0)) return; if(++pubs.courses%PUB_TOUTES_LES!==0) return;
+  pubSon(true); A.prepareInterstitial({adId:PUB_ENTRE_COURSES[pubPlateforme()],isTesting:PUB_TEST}).then(function(){ return A.showInterstitial(); }).catch(function(){ pubSon(false); });
+}
+
+/* ================= GARAGE : clés, déblocage et choix de la voiture ================= */
+var garage={choisi:SKINS[0].id,cles:0,acquis:{}}, gVu=0, gDepuis='menu';
+try{ var sgar=JSON.parse(localStorage.getItem('valmont_garage')||'null'); if(sgar){ garage.cles=Math.max(0,sgar.cles|0); garage.acquis=sgar.acquis||{}; if(typeof sgar.choisi==='string') garage.choisi=sgar.choisi; } }catch(e){}
+function sauverGarage(){ try{ localStorage.setItem('valmont_garage',JSON.stringify(garage)); }catch(e){} }
+function skinAcquis(k){ return !(k.prix>0)||!!garage.acquis[k.id]; }
+function skinActuel(){ for(var i=0;i<SKINS.length;i++) if(SKINS[i].id===garage.choisi&&skinAcquis(SKINS[i])) return SKINS[i]; return SKINS[0]; }
+/* met la voiture du joueur aux couleurs d'un skin ; definitif = c'est son choix (enregistré et envoyé aux autres joueurs) */
+function montrerSkin(k,definitif){
+  opt.color=k.pi; opt.model=clamp(k.modele|0,0,MODELES.length-1);
+  if(player){ player.hex=PAINTS[opt.color][1]; paintCar(player.vis,player.hex); setMod(player,opt.model); }
+  if(definitif){ garage.choisi=k.id; sauverGarage(); saveOpt(); refreshOptLabels(); pushPresence(); refreshLobby(); }
+}
+function gagnerCles(n,pourquoi){ if(!(n>0)) return; garage.cles+=n; sauverGarage(); majGarage(); if(pourquoi) $('resSub').textContent+=' · +'+n+(n>1?' clés':' clé')+' ('+pourquoi+')'; }
+function majGarage(){
+  var k=SKINS[gVu]||SKINS[0], a=skinAcquis(k), txt=garage.cles+(garage.cles>1?' clés':' clé');
+  $('vCles').textContent=$('vCles2').textContent=txt;
+  $('gCles').textContent='Tu as '+txt+'. Une victoire rapporte '+GARAGE_CLES_VICTOIRE+' clés, un podium '+GARAGE_CLES_PODIUM+'.';
+  $('gNom').textContent=k.nom+' ('+(gVu+1)+'/'+SKINS.length+')';
+  var act=$('gAction'), manque=k.prix-garage.cles;
+  act.textContent=a?(k.id===skinActuel().id?'Voiture choisie ✓':'Choisir cette voiture'):(manque<=0?'Débloquer pour '+k.prix+(k.prix>1?' clés':' clé'):'Verrouillée : '+k.prix+(k.prix>1?' clés':' clé'));
+  $('gInfo').textContent=a?'':(manque>0?'Il te manque '+manque+(manque>1?' clés.':' clé.'):'Tu as assez de clés pour cette voiture.');
+  $('gPub').hidden=!pubDispo(); $('gPubGain').textContent='+'+GARAGE_CLES_PUB+(GARAGE_CLES_PUB>1?' clés':' clé');
+  $('gConf').hidden=!(pubs.plugin&&pubs.options);
+}
+/* appelé à l'affichage des résultats : clés selon la place, puis éventuelle pub entre deux courses */
+function finDeCourse(){
+  var place=parseInt($('pos').textContent,10)||99, nb=cars.length;
+  if(nb>=2){ if(place===1) gagnerCles(GARAGE_CLES_VICTOIRE,'victoire'); else if(place<=3&&nb>=4) gagnerCles(GARAGE_CLES_PODIUM,'podium'); }
+  pubEntreCourses();
+}
+OPTS.skin=OPTS.gvoir=1;
+handlers.skin=function(d){ var L=SKINS.filter(skinAcquis), i=L.indexOf(skinActuel()); montrerSkin(L[(i+d+L.length)%L.length],true); };
+handlers.garage=function(){ gDepuis=curScreen?curScreen.id:'menu'; gVu=Math.max(0,SKINS.indexOf(skinActuel())); majGarage(); openScreen('garage'); };
+handlers.gvoir=function(d){ gVu=(gVu+d+SKINS.length)%SKINS.length; montrerSkin(SKINS[gVu],false); majGarage(); };
+handlers.gchoisir=function(){ var k=SKINS[gVu];
+  if(!skinAcquis(k)){ if(garage.cles<k.prix){ majGarage(); return; } garage.cles-=k.prix; garage.acquis[k.id]=true; vibrer(1,200); blip(1320,0.3,0.1); }
+  montrerSkin(k,true); majGarage(); };
+handlers.gpub=function(){ pubRecompense(function(ok){ if(ok){ gagnerCles(GARAGE_CLES_PUB); blip(1200,0.18,0.07); } else $('gInfo').textContent='Pas de clé : la pub n\'était pas disponible ou n\'a pas été regardée jusqu\'au bout.'; }); };
+handlers.gconf=function(){ try{ pubs.plugin.showPrivacyOptionsForm(); }catch(e){} };
+handlers.gretour=function(){ montrerSkin(skinActuel(),false); openScreen(gDepuis==='lobby'?'lobby':'menu'); };
+SCREENS.push('garage');
+montrerSkin(skinActuel(),false); refreshOptLabels(); majGarage(); pubInit();
 handlers.touches=function(){ tkAttente=null; $('tkInfo').textContent='Choisis une action, puis appuie sur la nouvelle touche. Les flèches du clavier dirigent toujours la voiture.'; majTouches(); openScreen('touches'); };
 Object.keys(TOUCHES_ORIGINE).forEach(function(a){ handlers['tk_'+a]=function(){ tkAttente=a; $('tkInfo').textContent='Appuie sur la nouvelle touche (Échap pour annuler).'; majTouches(); }; });
 handlers.tk_defaut=function(){ for(var k in TOUCHES_ORIGINE) tk[k]=TOUCHES_ORIGINE[k]; tkAttente=null; sauverTouches(); majTouches(); $('tkInfo').textContent='Touches d\'origine rétablies.'; };
@@ -2526,8 +2669,12 @@ function syncVisuals(dt,time){
   else if(Math.abs(p.lat)>HW&&Math.abs(p.lat)<HW+1.15&&Math.abs(p.f)>10&&green) rumble(0.0,0.35,70);
   else if(p.slip>3.5&&green) rumble(0.1,0.3,70);
 }
+var vueGarage=false;
 function updateCamera(dt,time){
   var c=player, sp=clamp(Math.abs(c.f)/70,0,1), boosting=(c.padT>0||(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green));
+  var auGarage=state==='menu'&&curScreen&&curScreen.id==='garage';
+  if(auGarage!==vueGarage){ vueGarage=auGarage; if(auGarage) camera.setViewOffset(BW,BH,-BW*0.17,0,BW,BH); else camera.clearViewOffset(); }
+  if(auGarage){ var ag=time*0.35; camera.position.set(c.x+Math.cos(ag)*7.6,2.1,c.z+Math.sin(ag)*7.6); camera.lookAt(c.x,0.75,c.z); if(camera.fov!==42){ camera.fov=42; camera.updateProjectionMatrix(); } finalMat.uniforms.uBlur.value=0; return; }
   if(state==='menu'){
     var a=time*0.13, cx=c.x+Math.sin(c.h)*14, cz=c.z+Math.cos(c.h)*14;
     camera.position.set(cx+Math.cos(a)*21,3.4+Math.sin(a*0.7)*0.8,cz+Math.sin(a)*21); camera.lookAt(cx,0.9,cz); if(camera.fov!==48){ camera.fov=48; camera.updateProjectionMatrix(); } finalMat.uniforms.uBlur.value=0; return;
@@ -2557,7 +2704,7 @@ function frame(now){
   pollPad();
   if(state==='countdown'||state==='race'||state==='finished'||state==='results'){
     accT+=dt; var n=0; while(accT>=STEP&&n<8){ simulate(STEP); accT-=STEP; n++; } if(n===8) accT=0;
-    if(state==='finished'){ finishDelay-=dt; if(finishDelay<=0&&!finishShown){ finishShown=true; state='results'; hudT=0; openScreen('results'); chargerClassement(); } }
+    if(state==='finished'){ finishDelay-=dt; if(finishDelay<=0&&!finishShown){ finishShown=true; state='results'; hudT=0; openScreen('results'); chargerClassement(); finDeCourse(); } }
   }
   netFrame(dt);
   if(state!=='paused'){ syncVisuals(dt,time); }
