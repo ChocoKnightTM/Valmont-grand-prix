@@ -90,7 +90,7 @@ body{background:var(--ink);color:var(--fg);font-family:var(--body);font-size:15p
 #leds i.on{background:var(--green);box-shadow:0 0 8px var(--green)}
 #leds i.on.y{background:var(--amber);box-shadow:0 0 8px var(--amber)}
 #leds i.on.r{background:var(--red);box-shadow:0 0 8px var(--red)}
-.nitro{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding:5px 8px;margin-bottom:8px}
+.nitro{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center;padding:5px 8px;margin-bottom:8px}
 .nitro .bar{height:10px;background:rgba(255,255,255,.12);position:relative;overflow:hidden}
 #nitroFill{position:absolute;inset:0 auto 0 0;width:33%;background:var(--cyan)}
 .nitro.live #nitroFill{background:#fff;box-shadow:0 0 12px var(--cyan)}
@@ -305,6 +305,92 @@ body.tactile .keys{display:none}
 #lbMsg{font-family:var(--sr-texte);font-size:11px;color:rgba(255,255,255,.6)}
 
 
+/* ---------- première rangée du menu principal (Course solo / Jouer en ligne) ---------- */
+.primary-actions .item.primary{min-height:64px;font-size:clamp(17px,1.55vw,24px);padding:0 18px;white-space:nowrap}
+.primary-actions .item.primary b{font-size:15px}
+.primary-actions{gap:8px;margin:6px 0 8px}
+
+/* ---------- Garage : grille des voitures ---------- */
+#garage .col{width:min(560px,100%)}
+.gar-cles{display:flex;align-items:center;gap:8px}
+.gar-cles svg{width:17px;height:17px;fill:var(--sr-orange);display:block}
+.gar-cles b{font-family:var(--sr-cond);font-weight:900;font-size:17px;color:#fff;margin-right:6px}
+.gar-fiche{display:flex;flex-direction:column;gap:3px;min-height:46px}
+.gar-fiche b{font-family:var(--sr-cond);font-style:italic;font-weight:900;font-size:28px;letter-spacing:-.01em;text-transform:uppercase;line-height:1;padding-right:.06em}
+.gar-fiche span{font-family:var(--sr-texte);font-size:11px;color:rgba(226,223,235,.72)}
+.gar-aide{font-size:9px!important;opacity:.7}
+.grille{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}   /* 3 = nombre de colonnes (voitures par rangée) */
+.item.gcase{position:relative;flex-direction:column;justify-content:flex-start;align-items:center;gap:4px;min-height:150px;padding:8px 6px 9px;text-align:center}
+.item.gcase::after{content:none!important}
+.gc-ico{position:relative;flex:none;width:100%;height:92px;display:grid;place-items:center}
+.gc-car{position:absolute;left:6px;top:4px;width:calc(100% - 12px);height:calc(100% - 8px);object-fit:contain;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transition:opacity .15s,filter .15s}
+.gc-car:not([src]){visibility:hidden}
+.gc-nom{font-size:14px;font-weight:800;letter-spacing:.03em;line-height:1.05;text-transform:uppercase}
+.gc-etat{display:flex;align-items:center;gap:4px;min-height:15px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--sr-rose)}
+.gc-etat svg{width:13px;height:13px;fill:var(--sr-orange);display:block}
+.gc-etat b{color:var(--sr-orange);font-size:14px;font-weight:900;letter-spacing:.02em}
+.gc-cadenas{position:absolute;inset:0;display:none;place-items:center}
+.gc-cadenas svg{width:26px;height:26px;fill:#fff;filter:drop-shadow(0 0 6px rgba(0,0,0,.9))}
+.gcase.verrou .gc-car{opacity:.3;filter:grayscale(1) brightness(.8)}
+.gcase.verrou .gc-cadenas{display:grid}
+.gcase.verrou .gc-nom{color:rgba(255,255,255,.55)}
+.gcase.abordable .gc-etat b{color:#fff;text-shadow:0 0 8px var(--sr-orange)}
+.gcase.choisie{border-color:rgba(255,75,156,.75)}
+.gcase.choisie::before{content:'';position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--sr-rose);box-shadow:0 0 8px var(--sr-rose)}
+
+/* barre des couleurs, à droite */
+.barre-couleurs{position:absolute;right:clamp(24px,3vw,60px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.item.coul{width:auto;min-height:0;padding:2px;gap:8px;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;justify-content:flex-end}
+.item.coul::after{content:none!important}
+.item.coul.focus,.item.coul:focus-visible{background:none;border:0;box-shadow:none}
+.pastille{position:relative;width:34px;height:34px;border-radius:50%;background:var(--c);border:2px solid rgba(255,255,255,.28);box-shadow:0 3px 10px rgba(0,0,0,.55);display:grid;place-items:center;transition:transform .12s,box-shadow .12s}
+.pastille i{display:none;width:15px;height:15px}
+.pastille i svg{width:100%;height:100%;fill:#fff;display:block;filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
+.coul.choisie .pastille{border-color:#fff;box-shadow:0 0 0 3px rgba(12,10,18,.8),0 0 0 5px #fff,0 3px 10px rgba(0,0,0,.55)}
+.coul.focus .pastille{transform:scale(1.2);border-color:#fff;box-shadow:0 0 0 3px var(--sr-rose),0 0 18px rgba(255,75,156,.7)}
+.coul.choisie.focus .pastille{box-shadow:0 0 0 3px rgba(12,10,18,.8),0 0 0 5px var(--sr-rose),0 0 18px rgba(255,75,156,.7)}
+.coul.verrou .pastille{filter:saturate(.45) brightness(.65)}
+.coul.verrou .pastille i{display:block}
+.cl-prix{display:flex;align-items:center;gap:3px;font-family:var(--sr-cond);font-weight:900;font-size:13px;color:var(--sr-orange);text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.cl-prix svg{width:12px;height:12px;fill:var(--sr-orange);display:block}
+.coul.abordable .cl-prix b{color:#fff;text-shadow:0 0 8px var(--sr-orange)}
+/* panneau des statistiques, sous la voiture */
+.gar-stats{position:absolute;left:calc(50% + 40px);right:calc(clamp(24px,3vw,60px) + 70px);bottom:7vh;max-width:430px;padding:13px 16px 12px;background:linear-gradient(145deg,rgba(13,10,21,.72),rgba(19,10,24,.45));border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 18px 60px rgba(0,0,0,.35)}
+.gar-stats::before{content:'';position:absolute;top:-1px;left:0;width:44%;height:2px;background:linear-gradient(90deg,#ff3b98,#ff934e);box-shadow:0 0 12px #ff3b98}
+.st-titre{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.st-titre span{font-family:var(--sr-cond);font-style:italic;font-weight:900;font-size:17px;letter-spacing:.07em}
+.st-titre b{font-family:var(--sr-cond);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#ff6aa9}
+.st-ligne{display:grid;grid-template-columns:92px 1fr 118px;align-items:center;gap:10px;min-height:22px}
+.st-ligne span{font-family:var(--sr-cond);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.st-ligne i{height:7px;background:rgba(255,255,255,.1);transform:skewX(-20deg);overflow:hidden}
+.st-ligne i b{display:block;height:100%;background:linear-gradient(90deg,var(--sr-rose-vif),var(--sr-orange));box-shadow:0 0 8px rgba(255,75,156,.5);transition:width .25s}
+.st-ligne em{font-style:normal;font-family:var(--sr-texte);font-size:10px;color:rgba(255,255,255,.75);text-align:right;white-space:nowrap}
+
+/* ---------- capacité spéciale (HUD + bouton tactile) ---------- */
+.nitro .barres{display:flex;flex-direction:column;gap:3px}
+.nitro .bar2{height:5px}
+#nitroFill2{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--sr-orange),#ffd29a);box-shadow:0 0 10px var(--sr-orange)}
+.capa{display:contents}
+.capa .label{margin:0;white-space:nowrap}
+.capa-l{display:flex;align-items:center;gap:7px}
+.capa-l .bar{flex:1;height:5px!important}
+#capaFill{position:absolute;inset:0 auto 0 0;background:rgba(255,255,255,.35)}
+.capa b{font-family:var(--sr-cond);font-style:italic;font-weight:900;font-size:12px;letter-spacing:.06em;color:rgba(255,255,255,.55);min-width:34px;text-align:right;line-height:1}
+.capa.pret .label{color:#ff6aa9}
+.capa.pret #capaFill{background:linear-gradient(90deg,var(--sr-rose-vif),var(--sr-orange))}
+.capa.pret b{color:#fff;text-shadow:0 0 8px var(--sr-rose)}
+.capa.actif .label{color:var(--sr-bleu)}
+.capa.actif #capaFill{background:linear-gradient(90deg,var(--sr-bleu),#d8f0ff)}
+.capa.actif b{color:var(--sr-bleu)}
+#tSpecial{right:calc(max(26px,env(safe-area-inset-right,0px)) + 16px);bottom:158px;width:86px;height:86px;font-family:var(--sr-cond);font-size:13px;font-weight:800;
+  background:conic-gradient(rgba(255,75,156,.45) calc(var(--p,1)*1turn),rgba(10,14,19,.42) 0);border-color:rgba(255,255,255,.35);color:rgba(255,255,255,.7)}
+#tSpecial.pret{border-color:var(--sr-rose);color:#fff;box-shadow:0 0 16px rgba(255,75,156,.55)}
+#tSpecial.actif{background:conic-gradient(rgba(55,168,249,.6) calc(var(--p,1)*1turn),rgba(10,14,19,.42) 0);border-color:var(--sr-bleu);color:#fff}
+.st-capa{display:grid;grid-template-columns:92px auto 1fr;gap:10px;align-items:baseline;margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.1)}
+.st-capa span{font-family:var(--sr-cond);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.st-capa b{font-family:var(--sr-cond);font-style:italic;font-weight:900;font-size:15px;text-transform:uppercase;color:var(--sr-rose)}
+.st-capa em{font-style:normal;font-family:var(--sr-texte);font-size:10px;color:rgba(255,255,255,.7);text-align:right}
+
 /* ---------- HUD de course, style Street Racing ---------- */
 #hud .box{background:linear-gradient(145deg,rgba(13,10,21,.74),rgba(19,10,24,.5));border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #hud .label{font-family:var(--sr-cond);font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.45)}
@@ -366,6 +452,24 @@ body.tactile .keys{display:none}
   .screen h2{font-size:26px;padding-bottom:6px}
   .status-bar,.credits{display:none}
   .pill{font-size:8px}
+  .primary-actions .item.primary{min-height:40px;font-size:16px;padding:0 14px}
+  .primary-actions .item.primary b{font-size:12px}
+  #garage .col{width:min(430px,54vw)}
+  .grille{grid-template-columns:repeat(3,1fr);gap:4px}
+  .item.gcase{min-height:84px;padding:4px 3px;gap:1px}
+  .gc-ico{height:46px}.gc-nom{font-size:10px}.gc-etat{font-size:9px;min-height:12px}.gc-etat b{font-size:11px}
+  .gc-cadenas svg{width:18px;height:18px}
+  .barre-couleurs{gap:4px;right:max(14px,env(safe-area-inset-right,0px))}
+  .pastille{width:24px;height:24px}.pastille i{width:11px;height:11px}
+  .cl-prix{font-size:10px}.cl-prix svg{width:9px;height:9px}
+  .gar-stats{left:auto;right:calc(max(14px,env(safe-area-inset-right,0px)) + 64px);bottom:8px;width:250px;padding:7px 10px 6px}
+  .st-titre{margin-bottom:3px}.st-titre span{font-size:12px}.st-titre b{font-size:9px}
+  .st-ligne{grid-template-columns:62px 1fr 84px;gap:6px;min-height:15px}
+  .st-ligne span{font-size:9px}.st-ligne em{font-size:8px}.st-ligne i{height:5px}
+  .st-capa{grid-template-columns:62px auto 1fr;gap:6px;margin-top:4px;padding-top:4px}.st-capa span{font-size:9px}.st-capa b{font-size:11px}.st-capa em{font-size:8px}
+  #tSpecial{width:70px;height:70px;bottom:150px;font-size:11px}
+  .gar-fiche{min-height:32px}.gar-fiche b{font-size:19px}.gar-fiche span{font-size:9px}
+  .gar-aide{display:none}
 }
 </style>
 
@@ -388,7 +492,7 @@ body.tactile .keys{display:none}
     <div class="box" id="tower"></div>
     <div class="box hud-bl"><canvas id="mini" width="340" height="340"></canvas></div>
     <div class="hud-br">
-      <div class="box nitro" id="nitroBox"><span class="label">Nitro</span><div class="bar"><div id="nitroFill"></div></div></div>
+      <div class="box nitro" id="nitroBox"><span class="label">Nitro</span><div class="barres"><div class="bar bar2" id="nitroBar2" hidden><div id="nitroFill2"></div></div><div class="bar"><div id="nitroFill"></div></div></div><div class="capa" id="capaBox"><span class="label" id="capaNom">Capacité</span><div class="capa-l"><div class="bar"><div id="capaFill"></div></div><b id="capaEtat">PRÊT</b></div></div></div>
       <div id="leds"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="speedo">
         <svg viewBox="0 0 230 200" aria-hidden="true">
@@ -412,7 +516,7 @@ body.tactile .keys{display:none}
 
   <div id="tactile" hidden>
     <div id="tBase"><div id="tStick"></div></div>
-    <div class="tb" id="tDrift">Drift</div><div class="tb" id="tNitro">Nitro</div>
+    <div class="tb" id="tDrift">Drift</div><div class="tb" id="tNitro">Nitro</div><div class="tb" id="tSpecial">Spécial</div>
     <div class="tb" id="tPause">Pause</div><div class="tb" id="tVue">Vue</div>
   </div>
   <div id="tourne">Tourne ton téléphone<span>Le jeu se joue en mode paysage.</span></div>
@@ -434,14 +538,9 @@ body.tactile .keys{display:none}
         <button class="item" data-act="track">Circuit <span class="v" id="vTrack"></span></button>
         <button class="item" data-act="diff">Niveau des bots <span class="v" id="vDiff"></span></button>
         <button class="item" data-act="laps">Tours <span class="v" id="vLaps"></span></button>
-        <button class="item" data-act="skin">Voiture <span class="v" id="vColor"></span></button>
         <button class="item" data-act="garage">Garage <span class="n" id="vCles"></span></button>
-        <button class="item" data-act="sound">Son <span class="v" id="vSound"></span></button>
-        <button class="item" data-act="audio">Réglages audio</button>
         <button class="item" data-act="board">Classements</button>
-        <button class="item" data-act="gfxs">Graphismes</button>
-        <button class="item" data-act="touches">Touches du clavier</button>
-        <button class="item" data-act="plein" id="bPlein" hidden>Plein écran</button>
+        <button class="item" data-act="parametres">Paramètres</button>
       </div>
       <span class="pill" id="padPill">Manette : appuie sur un bouton pour l'activer</span>
       <p class="sub credits">Modèles 3D : « Ferrari F599 | Low Poly Stylized » par kulonee (Sketchfab, CC BY 4.0).</p>
@@ -454,6 +553,7 @@ body.tactile .keys{display:none}
         <tr><td>Freiner / reculer</td><td><kbd>L2</kbd></td><td><kbd>↓</kbd> <kbd id="kFrein">S</kbd></td></tr>
         <tr><td>Diriger</td><td><kbd>Stick G.</kbd></td><td><kbd>←</kbd> <kbd>→</kbd> <kbd id="kGauche">Q</kbd> <kbd id="kDroite">D</kbd></td></tr>
         <tr><td>Nitro</td><td><kbd>R1</kbd></td><td><kbd id="kNitro">Espace</kbd></td></tr>
+        <tr><td>Capacité spéciale</td><td><kbd>L1</kbd></td><td><kbd id="kSpecial">E</kbd></td></tr>
         <tr><td>Drift (frein à main)</td><td><kbd>✕</kbd></td><td><kbd id="kDrift">Maj</kbd></td></tr>
         <tr><td>Changer de caméra</td><td><kbd>△</kbd></td><td><kbd id="kCam">C</kbd></td></tr>
         <tr><td>Regarder derrière</td><td><kbd>○</kbd></td><td><kbd id="kArriere">B</kbd></td></tr>
@@ -492,7 +592,6 @@ body.tactile .keys{display:none}
         <button class="item" id="lLaps" data-act="llaps">Tours <span class="v" id="vLLaps"></span></button>
         <button class="item" id="lBots" data-act="lbots">Bots <span class="v" id="vLBots"></span></button>
         <button class="item" id="lDiff" data-act="ldiff">Niveau des bots <span class="v" id="vLDiff"></span></button>
-        <button class="item" data-act="skin">Voiture <span class="v" id="vColor2"></span></button>
         <button class="item" data-act="garage">Garage <span class="n" id="vCles2"></span></button>
         <button class="item" data-act="copy">Copier le lien d'invitation <span class="n" id="vCopy"></span></button>
         <button class="item" data-act="leave">Quitter le salon</button>
@@ -535,15 +634,30 @@ body.tactile .keys{display:none}
   <div id="garage" class="layer screen" hidden>
     <div class="col">
       <h2>Garage</h2>
-      <p class="sub" id="gCles"></p>
+      <p class="sub gar-cles"><span id="gIcoCle"></span><b id="gCles"></b><span id="gGains"></span></p>
+      <div class="gar-fiche"><b id="gNom"></b><span id="gInfo"></span></div>
       <div class="items">
-        <button class="item" data-act="gvoir">Voiture <span class="v" id="gNom"></span></button>
-        <button class="item primary" data-act="gchoisir" id="gAction">Choisir</button>
+        <div class="grille" id="gGrille" data-droite="gCouleurs"></div>
         <button class="item" data-act="gpub" id="gPub" hidden>Regarder une pub <span class="n" id="gPubGain"></span></button>
         <button class="item" data-act="gconf" id="gConf" hidden>Confidentialité des pubs</button>
         <button class="item" data-act="gretour">Retour</button>
       </div>
-      <p class="sub" id="gInfo"></p>
+      <p class="sub gar-aide">Flèches ou croix : parcourir · Droite : couleurs · Entrée ou A : choisir / débloquer</p>
+    </div>
+    <div class="barre barre-couleurs" id="gCouleurs" data-gauche="gGrille"></div>
+    <div class="gar-stats"><div class="st-titre"><span>STATISTIQUES</span><b id="gStatsNom"></b></div><div id="gStatsLignes"></div></div>
+  </div>
+  <div id="parametres" class="layer screen dim" hidden>
+    <div class="col">
+      <h2>Paramètres</h2>
+      <div class="items">
+        <button class="item" data-act="sound">Son <span class="v" id="vSound"></span></button>
+        <button class="item" data-act="audio">Réglages audio</button>
+        <button class="item" data-act="gfxs">Graphismes</button>
+        <button class="item" data-act="touches">Touches du clavier</button>
+        <button class="item" data-act="plein" id="bPlein" hidden>Plein écran</button>
+        <button class="item" data-act="menu">Retour</button>
+      </div>
     </div>
   </div>
   <div id="pubSimu" hidden style="position:fixed;inset:0;z-index:200;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:600 22px sans-serif;text-align:center">Publicité (simulation)</div>
@@ -558,11 +672,12 @@ body.tactile .keys{display:none}
         <button class="item" data-act="tk_droite">Tourner à droite <span class="n" id="tkDroite"></span></button>
         <button class="item" data-act="tk_drift">Drift <span class="n" id="tkDrift"></span></button>
         <button class="item" data-act="tk_nitro">Nitro <span class="n" id="tkNitro"></span></button>
+        <button class="item" data-act="tk_special">Capacité spéciale <span class="n" id="tkSpecial"></span></button>
         <button class="item" data-act="tk_cam">Changer de caméra <span class="n" id="tkCam"></span></button>
         <button class="item" data-act="tk_arriere">Regarder derrière <span class="n" id="tkArriere"></span></button>
         <button class="item" data-act="tk_pause">Pause <span class="n" id="tkPause"></span></button>
         <button class="item" data-act="tk_defaut">Remettre les touches d'origine</button>
-        <button class="item" data-act="menu">Retour</button>
+        <button class="item" data-act="parametres">Retour</button>
       </div>
     </div>
   </div>
@@ -574,7 +689,7 @@ body.tactile .keys{display:none}
         <button class="item" data-act="qualite">Qualité <span class="v" id="vQualite"></span></button>
         <button class="item" data-act="fps">Afficher les FPS <span class="v" id="vFps"></span></button>
         <button class="item" data-act="vib">Vibrations (téléphone) <span class="v" id="vVib"></span></button>
-        <button class="item" data-act="menu">Retour</button>
+        <button class="item" data-act="parametres">Retour</button>
       </div>
       <p class="sub" id="gfxInfo"></p>
     </div>
@@ -587,7 +702,7 @@ body.tactile .keys{display:none}
         <button class="item" data-act="vol">Volume général <span class="v" id="vVol"></span></button>
         <button class="item" data-act="mus">Musique <span class="v" id="vMus"></span></button>
         <button class="item" data-act="eng">Moteur <span class="v" id="vEng"></span></button>
-        <button class="item" data-act="menu">Retour</button>
+        <button class="item" data-act="parametres">Retour</button>
       </div>
     </div>
   </div>
@@ -652,28 +767,50 @@ var ENVS={
       sun:[0.80,0.17,0.30],sunCol:[1.0,0.56,0.28],sunI:3.4,hemiS:[0.50,0.42,0.62],hemiG:[0.30,0.16,0.08],hemiI:0.45,fog:[0.78,0.42,0.25],fogN:320,fogF:2300,exp:0.82,spot:0.4,
       ibl:0.55,sat:1.1,con:0.22,omb:[0.90,0.93,1.10],lum:[1.07,0.99,0.88]}
 };
-/* ================= GARAGE : les voitures du jeu =================
-   Pour ajouter une voiture, ajoute une ligne dans SKINS :
-     id      : un nom court et unique, sans espace. Ne le change plus ensuite, il sert à retenir ce que le joueur a débloqué.
+/* ================= GARAGE : voitures et couleurs =================
+   VOITURES = les cases de la grille du garage, une par modèle 3D.
+     id      : un nom court et unique, sans espace. Ne le change plus ensuite (il sert à retenir ce que le joueur a débloqué).
      nom     : le nom affiché dans le garage.
-     modele  : le numéro du modèle 3D dans la liste MODELES (0 = voiture-1.glb, 1 = voiture-2.glb, 2 = voiture-3.glb).
-               Pour un nouveau modèle : ajoute son fichier dans modeles/, une ligne dans MODELES, puis utilise son numéro ici.
-     couleur : la couleur de la carrosserie, sous la forme 0xRRVVBB.
-     prix    : le nombre de clés pour la débloquer (0 = gratuite dès le départ).
-   Les clés se gagnent en course (GARAGE_CLES_VICTOIRE, GARAGE_CLES_PODIUM) et en regardant une pub (GARAGE_CLES_PUB). */
-var SKINS=[
-  {id:'rouge',     nom:'Rouge Valmont',    modele:0, couleur:0xc4161c, prix:0},
-  {id:'bleu',      nom:'Bleu Nuit',        modele:0, couleur:0x14419c, prix:0},
-  {id:'blanc',     nom:'Blanc Nacré',      modele:0, couleur:0xe6e7ea, prix:0},
-  {id:'jaune',     nom:'Jaune Signal',     modele:1, couleur:0xf2b705, prix:2},
-  {id:'vert',      nom:'Vert Anglais',     modele:1, couleur:0x0f5a36, prix:2},
-  {id:'orange',    nom:'Orange Papaye',    modele:1, couleur:0xff6a13, prix:3},
-  {id:'violet',    nom:'Violet Améthyste', modele:2, couleur:0x6a2bb8, prix:4},
-  {id:'turquoise', nom:'Turquoise',        modele:2, couleur:0x0fb5a8, prix:4},
-  {id:'carbone',   nom:'Noir Carbone',     modele:2, couleur:0x16181d, prix:6},
-  {id:'or',        nom:'Or Champion',      modele:2, couleur:0xd4a017, prix:10}
+     modele  : le numéro du modèle 3D dans MODELES (0 = voiture-1.glb, 1 = voiture-2.glb, 2 = voiture-3.glb).
+     prix    : le nombre de clés pour la débloquer (0 = disponible dès le départ).
+     capacite: la capacité spéciale de la voiture (voir CAPACITES juste en dessous).
+     stats   : multiplicateurs AFFICHÉS dans le panneau Statistiques (1 = la voiture de base).
+               Pour l'instant ils ne changent PAS la conduite : toutes les voitures roulent pareil.
+   Nouvelle voiture : mets son fichier dans modeles/, ajoute une ligne dans MODELES, puis une ligne ici.
+   La case, sa photo et sa navigation à la manette se créent toutes seules. */
+var VOITURES=[
+  {id:'v1', nom:'Voiture 1', modele:0, prix:0, capacite:'nitro',   stats:{vitesse:1, acceleration:1, freinage:1, adherence:1, nitro:1}},
+  {id:'v2', nom:'Voiture 2', modele:1, prix:5, capacite:'fantome', stats:{vitesse:1, acceleration:1, freinage:1, adherence:1, nitro:1}},
+  {id:'v3', nom:'Voiture 3', modele:2, prix:8, capacite:'rebond',  stats:{vitesse:1, acceleration:1, freinage:1, adherence:1, nitro:1}}
+];
+/* COULEURS = la barre de droite du garage. Une couleur débloquée marche sur toutes les voitures.
+     id : nom court unique (ne plus le changer) · nom : nom affiché · couleur : 0xRRVVBB · prix : clés (0 = gratuite).
+   La première de la liste est la couleur par défaut. */
+var COULEURS=[
+  {id:'rouge',     nom:'Rouge Valmont',    couleur:0xc4161c, prix:0},
+  {id:'bleu',      nom:'Bleu Nuit',        couleur:0x14419c, prix:0},
+  {id:'blanc',     nom:'Blanc Nacré',      couleur:0xe6e7ea, prix:0},
+  {id:'jaune',     nom:'Jaune Signal',     couleur:0xf2b705, prix:2},
+  {id:'vert',      nom:'Vert Anglais',     couleur:0x0f5a36, prix:2},
+  {id:'orange',    nom:'Orange Papaye',    couleur:0xff6a13, prix:3},
+  {id:'violet',    nom:'Violet Améthyste', couleur:0x6a2bb8, prix:4},
+  {id:'turquoise', nom:'Turquoise',        couleur:0x0fb5a8, prix:4},
+  {id:'carbone',   nom:'Noir Carbone',     couleur:0x16181d, prix:6},
+  {id:'or',        nom:'Or Champion',      couleur:0xd4a017, prix:10}
 ];
 var GARAGE_CLES_VICTOIRE=2, GARAGE_CLES_PODIUM=1, GARAGE_CLES_PUB=1;
+/* ================= CAPACITÉS SPÉCIALES =================
+   Bouton spécial : E au clavier (modifiable dans Touches du clavier), L1 à la manette, bouton « Spécial » sur téléphone.
+   duree    : secondes pendant lesquelles l'effet dure.
+   recharge : secondes d'attente APRÈS l'effet avant de pouvoir la réutiliser. */
+var CAPACITES={
+  nitro:  {nom:'Nitro+',  duree:0, recharge:20, desc:'Remplit une 2e barre de nitro'},
+  fantome:{nom:'Fantôme', duree:4, recharge:20, desc:'Transparente, traverse les autres voitures'},
+  rebond: {nom:'Rebond',  duree:5, recharge:20, desc:'Projette les voitures qu\'elle percute'}
+};
+var FANTOME_OPACITE=0.3;   /* transparence de la voiture fantôme (0 = invisible, 1 = normale) */
+var REBOND_FORCE=16;       /* vitesse donnée à la voiture percutée, en m/s (16 m/s ≈ 58 km/h) ; plus grand = projetée plus loin */
+var REBOND_GLISSE=0.9;     /* secondes pendant lesquelles la voiture projetée glisse (elle accroche moins la route) */
 var PAINTS=[['Rouge Valmont',0xc4161c],['Bleu Nuit',0x14419c],['Jaune Signal',0xf2b705],['Vert Anglais',0x0f5a36],['Blanc Nacré',0xe6e7ea],['Orange Papaye',0xff6a13],['Violet Améthyste',0x6a2bb8],['Turquoise',0x0fb5a8]];
 var NAMES=[['L. Brandt','BRA'],['M. Okafor','OKA'],['S. Lindqvist','LIN'],['T. Arakaki','ARA'],['J. Peeters','PEE'],['R. Castelain','CAS'],['N. Varga','VAR']];
 var DIFFS=[['Normal',0.87,0.93,0.95],['Difficile',0.92,0.975,0.98],['Expert',0.96,1.0,1.0]], LAPS=[3,5,7];
@@ -1367,6 +1504,7 @@ function resetCar(c,ctrl,name,tag,hex){
   c.lapStart=0;c.best=null;c.last=null;c.finished=false;c.finishTime=0;c.slip=0;c.off=false;c.boost=1;c.auto=false;c.roll=0;c.pitch=0;c.yawRate=0;c.acc=0;c.stuck=0;
   c.nitro=0.34;c.nitroOn=false;c.padT=0;c.launchT=0;c.draft=0;c.hits=0;c.peer=null;c.botIdx=-1;
   c.tx=0;c.tz=0;c.th=0;c.tvx=0;c.tvz=0;c.stamp=0;c.sig=NaN;c.drift=0;c.driftT=0;
+  c.capT=0;c.capCd=0;c.nitro2=0;c.projT=0;c.rebondImm=0;c.fantome=false;c.rebond=false;
 }
 /* ================= Car models (.glb) ================= */
 /* One entry per model in the modeles folder. "corps" is the palette colour of the bodywork in that file:
@@ -1381,7 +1519,7 @@ var CAR_LEN=4.65;
 function chargerModeles(){
   if(!THREE.GLTFLoader) return;
   var loader=new THREE.GLTFLoader(), restants=MODELES.length, res=[];
-  function fin(){ if(--restants>0) return; var ok=res.filter(Boolean); MODS=ok; if(ok.length){ pool.forEach(function(c,k){ c.modIdx=k%ok.length; poserModele(c,ok[c.modIdx]); }); setMod(player,opt.model); } }
+  function fin(){ if(--restants>0) return; var ok=res.filter(Boolean); MODS=ok; if(ok.length){ pool.forEach(function(c,k){ c.modIdx=k%ok.length; poserModele(c,ok[c.modIdx]); }); setMod(player,opt.model); if(typeof photosVoitures==='function') photosVoitures(); } }
   MODELES.forEach(function(m,k){
     loader.load(m.fichier,function(gltf){ try{ res[k]=preparerModele(gltf.scene,m); }catch(e){ console.warn('Modèle illisible : '+m.fichier,e); } fin(); },
       undefined,function(){ console.warn('Modèle introuvable : '+m.fichier); fin(); });
@@ -1419,7 +1557,7 @@ function preparerModele(root,m){
 function poserModele(c,M){
   var v=c.vis, obj=M.proto.clone(true), cache={}, roues=[];
   v.palettes=[];
-  v.tailMat=null; v.headMat=null;
+  v.tailMat=null; v.headMat=null; v._fantome=false;
   obj.traverse(function(o){
     if(/^Wheel_/i.test(o.name)) roues.push(o);
     if(!o.isMesh||!o.material) return;
@@ -1543,7 +1681,7 @@ function renderFrame(time){
 
 /* ================= Options / state ================= */
 var opt={track:0,diff:1,laps:0,color:0,sound:true}, record=null;
-SKINS.forEach(function(k){ var i, pi=-1; for(i=0;i<PAINTS.length;i++) if(PAINTS[i][1]===k.couleur) pi=i; if(pi<0){ PAINTS.push([k.nom,k.couleur]); pi=PAINTS.length-1; } k.pi=pi; });
+COULEURS.forEach(function(k){ var i, pi=-1; for(i=0;i<PAINTS.length;i++) if(PAINTS[i][1]===k.couleur) pi=i; if(pi<0){ PAINTS.push([k.nom,k.couleur]); pi=PAINTS.length-1; } k.pi=pi; });
 try{ var sv=JSON.parse(localStorage.getItem('valmont_opt2')||'null'); if(sv){ opt.track=clamp(sv.track|0,0,2); opt.diff=clamp(sv.diff|0,0,2); opt.laps=clamp(sv.laps|0,0,2); opt.color=clamp(sv.color|0,0,PAINTS.length-1); opt.sound=sv.sound!==false; } }catch(e){}
 function saveOpt(){ try{ localStorage.setItem('valmont_opt2',JSON.stringify(opt)); }catch(e){} }
 var state='menu', prevState='race', raceTime=0, green=false, cdT=0, cdHold=4.6, totalLaps=3, raceBest=null, camMode=0, camH=0, finishShown=false, finishDelay=0, wrongT=0, online=false;
@@ -1588,15 +1726,16 @@ function act(name){
   if(curScreen){
     if(name==='up') moveFocus(-1); else if(name==='down') moveFocus(1);
     else if(name==='left') activate(-1); else if(name==='right') activate(1); else if(name==='ok') activate(0);
-    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='board'||id==='gfx'||id==='touches') handlers.menu(); else if(id==='garage') handlers.gretour(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
+    else if(name==='pause'||name==='back'){ var id=curScreen.id; if(id==='pause') handlers.resume();  else if(id==='audio'||id==='gfx'||id==='touches') handlers.parametres(); else if(id==='board'||id==='parametres') handlers.menu(); else if(id==='garage') handlers.gretour(); else if(id==='online') handlers.back(); else if(id==='lobby'&&name==='back') handlers.leave(); }
     return;
   }
   if(name==='pause') pauseGame();
   else if(name==='cam') camMode=(camMode+1)%3;
+  else if(name==='special') activerCapacite(player);
   else if(name==='resetOFF'&&green&&player&&!player.finished){ placeCar(player,player.idx,0); }
 }
 /* ---- Touches du clavier : une touche par action, modifiable dans le menu « Touches du clavier » ---- */
-var TOUCHES_ORIGINE={gaz:'KeyW',frein:'KeyS',gauche:'KeyA',droite:'KeyD',drift:'ShiftLeft',nitro:'Space',cam:'KeyC',arriere:'KeyB',pause:'KeyP'};
+var TOUCHES_ORIGINE={gaz:'KeyW',frein:'KeyS',gauche:'KeyA',droite:'KeyD',drift:'ShiftLeft',nitro:'Space',special:'KeyE',cam:'KeyC',arriere:'KeyB',pause:'KeyP'};
 var tk={}, tkNoms={}, tkAttente=null, tkClavier=null;
 (function(){ var k; for(k in TOUCHES_ORIGINE) tk[k]=TOUCHES_ORIGINE[k];
   try{ var sv=JSON.parse(localStorage.getItem('valmont_touches')||'null'); if(sv&&sv.tk){ for(k in TOUCHES_ORIGINE) if(typeof sv.tk[k]==='string') tk[k]=sv.tk[k]; tkNoms=sv.noms||{}; } }catch(e){} })();
@@ -1611,7 +1750,7 @@ function nomTouche(code){
   return azerty[code]||code.replace(/^Key|^Digit/,'').replace(/^Numpad/,'Pavé ');
 }
 function majTouches(){
-  var ids={gaz:'Gaz',frein:'Frein',gauche:'Gauche',droite:'Droite',drift:'Drift',nitro:'Nitro',cam:'Cam',arriere:'Arriere',pause:'Pause'}, a;
+  var ids={gaz:'Gaz',frein:'Frein',gauche:'Gauche',droite:'Droite',drift:'Drift',nitro:'Nitro',special:'Special',cam:'Cam',arriere:'Arriere',pause:'Pause'}, a;
   for(a in ids){ var n=nomTouche(tk[a]); $('tk'+ids[a]).textContent=tkAttente===a?'appuie sur une touche…':n; $('k'+ids[a]).textContent=n; }
 }
 function sauverTouches(){ try{ localStorage.setItem('valmont_touches',JSON.stringify({tk:tk,noms:tkNoms})); }catch(e){} }
@@ -1634,10 +1773,10 @@ window.addEventListener('keydown',function(e){
   if(e.repeat){ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code)>=0) e.preventDefault(); return; }
   K[e.code]=true; initAudio();
   var map={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',Enter:'ok',Escape:'pause',KeyR:'reset'};
-  if(!curScreen){ map={Escape:'pause',KeyR:'reset'}; map[tk.pause]='pause'; map[tk.cam]='cam'; }
+  if(!curScreen){ map={Escape:'pause',KeyR:'reset'}; map[tk.pause]='pause'; map[tk.cam]='cam'; map[tk.special]='special'; }
   if((e.code==='Space'||e.code==='Enter')&&curScreen){ act('ok'); e.preventDefault(); return; }
   if(e.code==='KeyM'){ handlers.sound(); return; }
-  var a=map[e.code]; if(a){ if(curScreen||a==='pause'||a==='cam'||a==='reset') act(a); }
+  var a=map[e.code]; if(a){ if(curScreen||a==='pause'||a==='cam'||a==='reset'||a==='special') act(a); }
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code)>=0) e.preventDefault();
 });
 window.addEventListener('keyup',function(e){ K[e.code]=false; });
@@ -1651,11 +1790,11 @@ function readPad(p){
   var thr=B(7), brk=B(6);
   if(!std&&ps&&p.axes.length>=5){ [3,4].forEach(function(ax,k){ var key=p.index+'_'+k, v=p.axes[ax]; if(v<=-0.9) trigSeen[key]=true; if(trigSeen[key]){ var t=clamp((v+1)/2,0,1); if(k===0) brk=Math.max(brk,t); else thr=Math.max(thr,t); } }); }
   var X=std?0:(ps?1:0), O=std?1:(ps?2:1), SQ=std?2:(ps?0:2);
-  var r={sx:p.axes[0]||0,sy:p.axes[1]||0,thr:thr,brk:brk,ok:PR(X),back:PR(O),reset:PR(SQ),cam:PR(3),nitro:PR(5),pause:PR(9),up:PR(12),down:PR(13),left:PR(14),right:PR(15)};
-  r.any=r.ok||r.back||r.reset||r.cam||r.nitro||r.pause||r.up||r.down||r.left||r.right||thr>0.15||brk>0.15||Math.abs(r.sx)>0.5||Math.abs(r.sy)>0.5;
+  var r={sx:p.axes[0]||0,sy:p.axes[1]||0,thr:thr,brk:brk,ok:PR(X),back:PR(O),reset:PR(SQ),cam:PR(3),nitro:PR(5),special:PR(4),pause:PR(9),up:PR(12),down:PR(13),left:PR(14),right:PR(15)};
+  r.any=r.ok||r.back||r.reset||r.cam||r.nitro||r.special||r.pause||r.up||r.down||r.left||r.right||thr>0.15||brk>0.15||Math.abs(r.sx)>0.5||Math.abs(r.sy)>0.5;
   return r;
 }
-var PADKEYS=['ok','back','reset','cam','nitro','pause','up','down','left','right'];
+var PADKEYS=['ok','back','reset','cam','nitro','special','pause','up','down','left','right'];
 function pollPad(){
   var list=null, found=[], i;
   try{ list=navigator.getGamepads?navigator.getGamepads():[]; }catch(e){ padBlocked=true; }
@@ -1675,7 +1814,7 @@ function pollPad(){
   pad.steer=-Math.sign(sx)*Math.pow(Math.abs(sx),1.5);
   pad.thr=m.thr>0.03?m.thr:0; pad.brk=m.brk>0.03?m.brk:0;
   pad.hand=!!m.ok; pad.look=!!m.back; pad.nitro=!!m.nitro;
-  var now={ok:!!m.ok,back:!!m.back,reset:!!m.reset,cam:!!m.cam,pause:!!m.pause,up:!!m.up||m.sy<-0.6,down:!!m.down||m.sy>0.6,left:!!m.left||m.sx<-0.6,right:!!m.right||m.sx>0.6};
+  var now={ok:!!m.ok,back:!!m.back,reset:!!m.reset,cam:!!m.cam,special:!!m.special,pause:!!m.pause,up:!!m.up||m.sy<-0.6,down:!!m.down||m.sy>0.6,left:!!m.left||m.sx<-0.6,right:!!m.right||m.sx>0.6};
   for(var k in now){ if(now[k]&&!padPrev[k]){ initAudio(); act(k); } padPrev[k]=now[k]; }
 }
 /* vibration du téléphone : chocs, boosts et départs seulement (pas le roulement sur l'herbe) */
@@ -1694,16 +1833,46 @@ function rumble(strong,weak,ms){
 /* ================= Menus ================= */
 var curScreen=null, focusIdx=0, SCREENS=['menu','online','lobby','pause','results'];
 function itemsOf(){ return curScreen?Array.prototype.slice.call(curScreen.querySelectorAll('.item:not([hidden])')):[]; }
-function setFocus(i){ var it=itemsOf(); if(!it.length) return; focusIdx=(i+it.length)%it.length; it.forEach(function(el,k){ el.classList.toggle('focus',k===focusIdx); }); if(it[focusIdx].scrollIntoView) it[focusIdx].scrollIntoView({block:'nearest'}); }
+function setFocus(i){ var it=itemsOf(); if(!it.length) return; focusIdx=(i+it.length)%it.length; it.forEach(function(el,k){ el.classList.toggle('focus',k===focusIdx); }); if(it[focusIdx].scrollIntoView) it[focusIdx].scrollIntoView({block:'nearest'});
+  var f=it[focusIdx], pc=f.parentNode; if(pc.classList.contains('grille')||pc.classList.contains('barre')) pc.dataset.dernier=casesDe(pc).indexOf(f);
+  if(typeof garageFocus==='function') garageFocus(f); }
+/* ---- grilles (ex. garage) : tout conteneur .grille se parcourt en 2D au clavier et à la manette ---- */
+function grilleDe(el){ return (el&&el.parentNode&&el.parentNode.classList.contains('grille'))?el.parentNode:null; }
+/* barre verticale à part (ex. couleurs du garage) : haut/bas restent dedans, gauche ramène à la grille data-gauche */
+function barreDe(el){ return (el&&el.parentNode&&el.parentNode.classList.contains('barre'))?el.parentNode:null; }
+/* saute dans un autre conteneur (grille ou barre) sur la case où on était la dernière fois, sinon la case choisie */
+function sauterVers(id){ var c=$(id); if(!c) return false; var cs=casesDe(c); if(!cs.length) return false;
+  var t=cs[+c.dataset.dernier]||c.querySelector('.item.choisie')||cs[0], it=itemsOf(); setFocus(it.indexOf(t)); blip(520,0.03); return true; }
+function casesDe(g){ return Array.prototype.slice.call(g.querySelectorAll('.item:not([hidden])')); }
+function colonnesDe(g){ var c=casesDe(g), n=0; while(n<c.length&&c[n].offsetTop===c[0].offsetTop) n++; return Math.max(1,n); }
+/* ouvre un écran en plaçant la sélection sur la ligne data-act=act */
+function ouvrirSur(id,act){ openScreen(id); var it=itemsOf(); for(var i=0;i<it.length;i++) if(it[i].dataset.act===act){ setFocus(i); break; } }
 function moveFocus(d){ var it=itemsOf(); if(!it.length) return;
+  var cur=it[focusIdx], gr=grilleDe(cur), i=focusIdx, br=barreDe(cur);
+  if(br){ var bs=casesDe(br), bp=bs.indexOf(cur)+d; if(bp>=0&&bp<bs.length){ setFocus(it.indexOf(bs[bp])); blip(520,0.03); } return; }
+  /* dans une grille : haut/bas changent de rangée ; au bord, on sort de la grille */
+  if(gr){ var cs=casesDe(gr), p=cs.indexOf(cur), nc=colonnesDe(gr), q=p+d*nc, derniere=Math.floor((cs.length-1)/nc);
+    if(q>=0&&q<cs.length){ setFocus(it.indexOf(cs[q])); blip(520,0.03); return; }
+    if(d>0&&Math.floor(p/nc)<derniere){ setFocus(it.indexOf(cs[cs.length-1])); blip(520,0.03); return; }
+    i=it.indexOf(d>0?cs[cs.length-1]:cs[0]); cur=it[i];
+    if(d<0&&i===0){ setFocus(it.length-1); blip(520,0.03); return; }
+  }
   /* haut/bas : on saute par-dessus les boutons côte à côte (Course solo / Jouer en ligne) */
-  var cur=it[focusIdx], grp=(cur&&cur.parentNode.classList.contains('primary-actions'))?cur.parentNode:null, i=focusIdx;
-  do{ i=(i+d+it.length)%it.length; } while(grp&&it[i].parentNode===grp&&i!==focusIdx);
+  var grp=(cur&&cur.parentNode.classList.contains('primary-actions'))?cur.parentNode:null;
+  do{ i=(i+d+it.length)%it.length; } while(((grp&&it[i].parentNode===grp)||barreDe(it[i]))&&i!==focusIdx);
   /* en arrivant sur la rangée des gros boutons, on se place toujours sur celui de gauche */
   var g2=it[i].parentNode; if(g2.classList.contains('primary-actions')) i=it.indexOf(g2.querySelector('.item:not([hidden])'));
+  if(g2.classList.contains('grille')&&d<0){ var c2=casesDe(g2), n2=colonnesDe(g2); i=it.indexOf(c2[Math.floor((c2.length-1)/n2)*n2]); }
   setFocus(i); blip(520,0.03); }
 var OPTS={track:1,diff:1,laps:1,color:1,sound:1,ltrack:1,llaps:1,lbots:1,ldiff:1};
 function activate(dir){ var it=itemsOf(), el=it[focusIdx]; if(!el) return; var a=el.dataset.act;
+  /* gauche/droite dans une grille : case précédente / suivante */
+  var gr=grilleDe(el);
+  if(dir!==0&&gr){ var cs=casesDe(gr), pp=cs.indexOf(el), nc=colonnesDe(gr), q=pp+dir;
+    if(dir>0&&gr.dataset.droite&&(pp%nc===nc-1||pp===cs.length-1)){ sauterVers(gr.dataset.droite); return; }   /* bord droit : vers la barre */
+    if(q>=0&&q<cs.length){ setFocus(it.indexOf(cs[q])); blip(520,0.03); } return; }
+  var br=barreDe(el);
+  if(dir!==0&&br){ if(dir<0&&br.dataset.gauche) sauterVers(br.dataset.gauche); return; }
   /* gauche/droite entre les boutons côte à côte (Course solo / Jouer en ligne) */
   if(dir!==0&&el.parentNode.classList.contains('primary-actions')){
     var voisins=el.parentNode.querySelectorAll('.item'), j=Array.prototype.indexOf.call(voisins,el)+dir;
@@ -1725,7 +1894,6 @@ majHeure(); setInterval(majHeure,15000);
 $('app').addEventListener('mouseover',function(e){ var el=e.target.closest?e.target.closest('.item'):null; if(!el||!curScreen) return; var k=itemsOf().indexOf(el); if(k>=0&&k!==focusIdx) setFocus(k); });
 function refreshOptLabels(){
   $('vTrack').textContent=TRACKS[opt.track].name; $('vDiff').textContent=DIFFS[opt.diff][0]; $('vLaps').textContent=LAPS[opt.laps];
-  $('vColor').textContent=$('vColor2').textContent=(typeof skinActuel==='function'&&garage)?skinActuel().nom:PAINTS[opt.color][0];
   $('vSound').textContent=$('vSound2').textContent=opt.sound?'Activé':'Coupé';
   $('trkSub').textContent=TRK.name+' · '+(total/1000).toFixed(1).replace('.',',')+' km · '+TRK.sub.charAt(0).toUpperCase()+TRK.sub.slice(1)+' · 8 voitures';
   $('stCircuit').textContent=TRK.name;
@@ -1771,11 +1939,12 @@ function validPeers(){ return net.peers.filter(function(p){ return p.kind==='vie
 function lobbyMembers(){ return validPeers().filter(function(p){ return p.presence.lid===net.lid; }); }
 function findHost(){ if(net.host) return null; var m=lobbyMembers(); for(var i=0;i<m.length;i++) if(m[i].presence.host===true&&!m[i].sameTab) return m[i]; return null; }
 function readCfg(c){ c=c||{}; return {tr:clamp(num(c.tr)|0,0,TRACKS.length-1),laps:clamp(num(c.laps)|0,0,2),bots:clamp(num(c.bots)|0,0,4),diff:clamp(num(c.diff)|0,0,2)}; }
-function packCar(c){ return [r1(c.x),r1(c.z),r2(c.h),r1(c.vx),r1(c.vz),r1(c.progress),c.finished?Math.round(c.finishTime*1000)/1000:0,(c.brake>0.05?1:0)|((c.nitroOn&&c.nitro>0)||c.padT>0?2:0),r2(c.steer)]; }
+function packCar(c){ return [r1(c.x),r1(c.z),r2(c.h),r1(c.vx),r1(c.vz),r1(c.progress),c.finished?Math.round(c.finishTime*1000)/1000:0,(c.brake>0.05?1:0)|((c.nitroOn&&(c.nitro>0||c.nitro2>0))||c.padT>0?2:0)|(c.fantome?4:0)|(c.rebond?8:0),r2(c.steer)]; }
 function pushPresence(){
   if(!net.room) return;
   var o={v:2,nm:net.name,col:opt.color,mod:opt.model,lid:net.lid||null,host:net.lid?net.host:null,ph:null,rid:null,cfg:null,grid:null,bots:null,p:null,rr:null};
   if(net.lid&&net.host){ o.ph=net.ph; o.rid=net.rid; o.cfg=net.cfg; o.grid=net.grid; }
+  if(net.coups){ var tn=performance.now(); net.coups=net.coups.filter(function(h){ return tn-h[4]<1500; }); if(net.coups.length) o.k=net.coups.map(function(h){ return h.slice(0,4); }); }
   if(net.racing&&player){ o.rr=net.lastRid; o.p=packCar(player); if(net.host){ var b=[]; cars.forEach(function(c){ if(c.ctrl==='ai'&&c.botIdx>=0) b[c.botIdx]=packCar(c); }); o.bots=b; } }
   try{ net.room.presence(o).catch(function(){}); }catch(e){}
 }
@@ -1896,6 +2065,7 @@ function netFrame(dt){
   }
   if(!net.racing) return;
   var H=findHost(), now=performance.now();
+  recevoirCoups();
   for(var i=cars.length-1;i>=0;i--){ var c=cars[i]; if(c.ctrl!=='net') continue;
     var d=null;
     if(c.peer){ var p=peerById(c.peer); if(!p||p.presence.lid!==net.lid){ c.vis.group.visible=false; cars.splice(i,1); $('posTot').textContent=cars.length; continue; } if(p.presence.rr===net.lastRid) d=p.presence.p; }
@@ -1903,7 +2073,7 @@ function netFrame(dt){
     if(Array.isArray(d)&&d.length>=7){
       var sig=num(d[0])*3.1+num(d[1])*1.7+num(d[2])+num(d[5])*0.13+num(d[6]);
       if(sig!==c.sig){ c.sig=sig; c.stamp=now; c.tx=num(d[0]); c.tz=num(d[1]); c.th=num(d[2]); c.tvx=clamp(num(d[3]),-120,120); c.tvz=clamp(num(d[4]),-120,120);
-        c.progress=num(d[5]); var ft=num(d[6]); c.finished=ft>0; c.finishTime=ft; c.brake=(num(d[7])&1)?1:0; c.nitroOn=!!(num(d[7])&2); c.steer=clamp(num(d[8]),-1,1); }
+        c.progress=num(d[5]); var ft=num(d[6]); c.finished=ft>0; c.finishTime=ft; c.brake=(num(d[7])&1)?1:0; c.nitroOn=!!(num(d[7])&2); c.fantome=!!(num(d[7])&4); c.rebond=!!(num(d[7])&8); c.steer=clamp(num(d[8]),-1,1); }
     }
     if(now-c.stamp<700){ c.tx+=c.tvx*dt; c.tz+=c.tvz*dt; c.progress+=Math.hypot(c.tvx,c.tvz)*dt/ds; } else { c.tvx=0; c.tvz=0; }
     var k=1-Math.exp(-dt*12); c.x+=(c.tx-c.x)*k; c.z+=(c.tz-c.z)*k; c.h+=wrapA(c.th-c.h)*k;
@@ -2028,7 +2198,7 @@ var TAC_RAYON=56;        /* course du joystick en pixels : plus petit = directio
 var TAC_COURBE=1.25;     /* 1 = direction proportionnelle ; plus grand = plus douce près du centre */
 var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{},sy:0};
 (function(){
-  var el=$('tactile'), base=$('tBase'), stick=$('tStick'), noms=['tDrift','tNitro','tPause','tVue'];
+  var el=$('tactile'), base=$('tBase'), stick=$('tStick'), noms=['tDrift','tNitro','tSpecial','tPause','tVue'];
   function bouton(x,y){ var best=null, bd=1e9; noms.forEach(function(id){ var r=$(id).getBoundingClientRect(), d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2))-Math.max(r.width,r.height)/2; if(d<20&&d<bd){ bd=d; best=id; } }); return best; }
   function maj(){ var d=false,n=false,k,b; for(k in tac.doigts){ b=tac.doigts[k]; if(b==='tDrift') d=true; else if(b==='tNitro') n=true; }
     var av=-tac.sy;   /* inclinaison vers l'avant, de -1 à 1 */
@@ -2039,7 +2209,7 @@ var tac={on:false,steer:0,thr:0,brk:0,hand:false,nitro:false,stick:null,doigts:{
   el.addEventListener('touchstart',function(e){ e.preventDefault();
     for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
       if(t.clientX<window.innerWidth*0.45&&!tac.stick){ tac.stick={id:t.identifier,x:t.clientX,y:t.clientY}; base.style.left=(t.clientX-66)+'px'; base.style.top=(t.clientY-66)+'px'; base.style.bottom='auto'; }
-      else { var b=bouton(t.clientX,t.clientY); if(b==='tPause') act('pause'); else if(b==='tVue') act('cam'); else tac.doigts[t.identifier]=b; } }
+      else { var b=bouton(t.clientX,t.clientY); if(b==='tPause') act('pause'); else if(b==='tVue') act('cam'); else if(b==='tSpecial') act('special'); else tac.doigts[t.identifier]=b; } }
     maj(); },{passive:false});
   el.addEventListener('touchmove',function(e){ e.preventDefault();
     for(var i=0;i<e.changedTouches.length;i++){ var t=e.changedTouches[i];
@@ -2083,8 +2253,8 @@ function aiControl(c,dt){
   c.hand=0;
   if(raceDiff>0&&c.ctrl==='ai'){
     var far=vprof[(c.idx+Math.round(60/ds))%N]*c.ai.pace*Math.sqrt(BOTS[raceDiff][0]);
-    if(!c.ai.nit&&c.nitro>0.7&&far>f+10&&c.throttle>0.9&&Math.abs(d)<0.08) c.ai.nit=true;
-    if(c.ai.nit&&(c.nitro<=0.05||far<f+2)) c.ai.nit=false;
+    if(!c.ai.nit&&c.nitro+(c.nitro2||0)>0.7&&far>f+10&&c.throttle>0.9&&Math.abs(d)<0.08) c.ai.nit=true;
+    if(c.ai.nit&&(c.nitro+(c.nitro2||0)<=0.05||far<f+2)) c.ai.nit=false;
     c.nitroOn=c.ai.nit;
   } else c.nitroOn=false;
   if(Math.abs(f)<1.5) c.stuck+=dt; else c.stuck=0;
@@ -2110,7 +2280,7 @@ function stepCar(c,dt){
   var f=c.vx*sh+c.vz*ch, l=c.vx*ch-c.vz*sh;
   var a=0;
   if(c.throttle>0) a+=c.throttle*12.5*c.boost*(c.ctrl==='ai'?BOTS[raceDiff][1]:1)*(1-0.85*clamp(f/(c.ctrl==='ai'?VT*BOTS[raceDiff][2]:VT),0,1));
-  if(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green){ a+=9; c.nitro=Math.max(0,c.nitro-dt/3.4); }
+  if(c.nitroOn&&(c.nitro>0||c.nitro2>0)&&c.throttle>0.1&&green){ a+=9; if(c.nitro2>0) c.nitro2=Math.max(0,c.nitro2-dt/3.4); else c.nitro=Math.max(0,c.nitro-dt/3.4); }
   if(c.padT>0){ a+=15; c.padT-=dt; }
   if(c.launchT>0){ a+=7; c.launchT-=dt; }
   a+=3.2*c.draft;
@@ -2122,7 +2292,7 @@ function stepCar(c,dt){
   if(c.throttle<0.02&&c.brake<0.02){ var r=0.35*dt; fn=Math.abs(fn)<r?0:fn-Math.sign(fn)*r; }
   if(c.hand&&f*fn<0) fn=0;
   c.acc=a; f=fn;
-  var lg=G*(c.hand?0.32:1)*dt;
+  var lg=G*(c.hand?0.32:1)*(c.projT>0?0.2:1)*dt;
   c.slip=Math.abs(l);
   if(Math.abs(l)<=lg) l=0; else l-=Math.sign(l)*lg;
   if(c.slip>2) f*=(1-0.35*dt*Math.min(c.slip/8,1));
@@ -2166,7 +2336,7 @@ function stepDrift(c,dt){
   c.pathW=clamp(lerp(c.driftW0,wFull,k),-wMax,wMax);
   var a=0;
   if(c.throttle>0) a+=c.throttle*11.5*c.boost*(1-0.85*clamp(sp/VT,0,1));
-  if(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green){ a+=9; c.nitro=Math.max(0,c.nitro-dt/3.4); }
+  if(c.nitroOn&&(c.nitro>0||c.nitro2>0)&&c.throttle>0.1&&green){ a+=9; if(c.nitro2>0) c.nitro2=Math.max(0,c.nitro2-dt/3.4); else c.nitro=Math.max(0,c.nitro-dt/3.4); }
   if(c.padT>0){ a+=15; c.padT-=dt; }
   a-=0.0012*sp*sp+0.8; if(c.off) a-=sp*0.45; if(c.brake>0) a-=c.brake*14;
   sp=Math.max(0,sp+a*dt); c.acc=a;
@@ -2187,16 +2357,79 @@ function endDrift(c,isP){
 function collide(){
   for(var a=0;a<cars.length;a++) for(var b=a+1;b<cars.length;b++){
     var A=cars[a],Bc=cars[b], nA=A.ctrl==='net', nB=Bc.ctrl==='net'; if(nA&&nB) continue;
+    if(A.fantome||Bc.fantome) continue;   /* une voiture fantôme traverse les autres */
+    var att=(A.rebond&&!Bc.rebond)?A:((Bc.rebond&&!A.rebond)?Bc:null), choc=false;
     var ddx=A.x-Bc.x, ddz=A.z-Bc.z; if(ddx*ddx+ddz*ddz>30) continue;
     var wA=nA?0:(nB?1:0.5), wB=nB?0:(nA?1:0.5);
-    for(var p=-1;p<=1;p+=2) for(var q=-1;q<=1;q+=2){
+    for(var p=-1;p<=1&&!choc;p+=2) for(var q=-1;q<=1&&!choc;q+=2){
       var ax=A.x+Math.sin(A.h)*1.1*p, az=A.z+Math.cos(A.h)*1.1*p, bx=Bc.x+Math.sin(Bc.h)*1.1*q, bz=Bc.z+Math.cos(Bc.h)*1.1*q;
       var nx=ax-bx, nz=az-bz, d=Math.hypot(nx,nz);
       if(d<2.0&&d>1e-4){ nx/=d; nz/=d; var pen=(2.0-d); A.x+=nx*pen*wA; A.z+=nz*pen*wA; Bc.x-=nx*pen*wB; Bc.z-=nz*pen*wB;
+        if(att){ choc=true; if(att===A) rebondir(A,Bc,-nx,-nz); else rebondir(Bc,A,nx,nz); continue; }
         var rv=(A.vx-Bc.vx)*nx+(A.vz-Bc.vz)*nz;
         if(rv<0){ var jx=-rv*1.3; A.vx+=nx*jx*wA; A.vz+=nz*jx*wA; Bc.vx-=nx*jx*wB; Bc.vz-=nz*jx*wB; if((A===player||Bc===player)&&rv<-1){ rumble(clamp(-rv/10,0.3,1),0.5,140); blip(120,0.08,0.1); } } }
     }
   }
+}
+/* voiture « rebond » qui percute vic : vic est projetée dans la direction (dx,dz) du choc */
+function rebondir(att,vic,dx,dz){
+  if(vic.rebondImm>0) return;   /* déjà projetée il y a un instant */
+  var vrel=Math.max(0,(att.vx-vic.vx)*dx+(att.vz-vic.vz)*dz), force=REBOND_FORCE+vrel*0.6, ix=dx*force, iz=dz*force;
+  if(vic.ctrl==='net') envoyerCoup(vic,ix,iz); else projeter(vic,ix,iz);
+  vic.rebondImm=0.5; att.vx-=dx*vrel*0.3; att.vz-=dz*vrel*0.3;
+  if(att===player||vic===player){ rumble(1,1,240); blip(180,0.16,0.14); vibrer(1,200); }
+}
+function projeter(c,ix,iz){ c.vx+=ix; c.vz+=iz; c.projT=REBOND_GLISSE; c.rebondImm=0.5; if(c.drift){ c.drift=0; c.driftT=0; } }
+/* en ligne : on ne peut pas bouger la voiture d'un autre joueur, on lui envoie le coup (il l'applique chez lui) */
+function envoyerCoup(vic,ix,iz){
+  var cible=vic.peer?vic.peer:(vic.botIdx>=0?'b'+vic.botIdx:null); if(!cible) return;
+  net.coupN=(net.coupN||0)+1; (net.coups=net.coups||[]).push([cible,r1(ix),r1(iz),net.coupN,performance.now()]);
+  vic.tvx+=ix; vic.tvz+=iz;   /* aperçu immédiat chez soi */
+}
+function recevoirCoups(){
+  net.coupsVus=net.coupsVus||{};
+  validPeers().forEach(function(pr){ var k=pr.presence.k; if(!Array.isArray(k)) return;
+    var cle=pr.peer+'|'+net.lastRid, vu=net.coupsVus[cle]||0, max=vu;
+    k.forEach(function(h){ if(!Array.isArray(h)||h.length<4) return; var n=num(h[3]); if(!(n>vu)) return; if(n>max) max=n;
+      var ix=clamp(num(h[1]),-60,60), iz=clamp(num(h[2]),-60,60);
+      if(h[0]===net.me&&player) projeter(player,ix,iz);
+      else if(net.host&&typeof h[0]==='string'&&h[0].charAt(0)==='b'){ var bi=parseInt(h[0].slice(1),10); cars.forEach(function(c){ if(c.ctrl==='ai'&&c.botIdx===bi) projeter(c,ix,iz); }); } });
+    net.coupsVus[cle]=max; });
+}
+/* ---- capacités spéciales ---- */
+function capaciteDe(c){ var m=c.modIdx|0; for(var i=0;i<VOITURES.length;i++) if((VOITURES[i].modele|0)===m) return VOITURES[i].capacite||''; return ''; }
+function activerCapacite(c){
+  if(!c||state!=='race'||!green||c.finished||c.capCd>0) return false;
+  var k=capaciteDe(c), C=CAPACITES[k]; if(!C) return false;
+  if(k==='nitro') c.nitro2=1; else c.capT=C.duree;
+  c.capCd=C.duree+C.recharge;
+  if(c===player){ blip(k==='fantome'?660:(k==='rebond'?260:1250),0.28,0.1); rumble(0.4,0.8,200); vibrer(0.6,120); }
+  return true;
+}
+function majCapacite(c,dt){
+  c.capT=Math.max(0,c.capT-dt); c.capCd=Math.max(0,c.capCd-dt); c.projT=Math.max(0,c.projT-dt);
+  var k=capaciteDe(c); c.fantome=k==='fantome'&&c.capT>0; c.rebond=k==='rebond'&&c.capT>0;
+}
+/* bots : ils utilisent leur capacité quand c'est utile (plus souvent en Difficile et Expert) */
+function capaciteBot(c,dt){
+  if(c.capCd>0||!green) return; var k=capaciteDe(c); if(!k) return;
+  if(k==='nitro'){ if(c.nitro<0.15&&c.f>25) activerCapacite(c); return; }
+  var proche=false;
+  for(var i=0;i<cars.length;i++){ var o=cars[i]; if(o===c||o.fantome) continue;
+    var dp=(o.s-c.s)*ds; if(dp<-total/2) dp+=total; if(dp>total/2) dp-=total; var dl=Math.abs(o.lat-c.lat);
+    if(k==='fantome'&&dp>0&&dp<16&&dl<2.8) proche=true;
+    if(k==='rebond'&&Math.abs(dp)<9&&dl<3.6) proche=true; }
+  if(proche&&Math.random()<dt*(0.5+raceDiff*0.6)) activerCapacite(c);
+}
+/* apparence : voiture fantôme transparente (chaque voiture reçoit ses propres matériaux la 1re fois) */
+function majFantome(c){
+  var v=c.vis, on=!!c.fantome; if(v._fantome===on) return; v._fantome=on;
+  v.group.traverse(function(o){ if(!o.isMesh||o===v.beam||o===v.cone||o===v.under) return;
+    if(!o.userData.propre){ o.userData.propre=true;
+      var cl=function(m){ var n=m.clone(); if(m===v.brakeMat) v.brakeMat=n; if(m===v.tailMat) v.tailMat=n; if(m===v.headMat) v.headMat=n; if(m===v.paint) v.paint=n; if(m===v.stripe) v.stripe=n; return n; };
+      o.material=Array.isArray(o.material)?o.material.map(cl):cl(o.material); }
+    (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){ m.transparent=on; m.opacity=on?FANTOME_OPACITE:1; m.depthWrite=!on; m.needsUpdate=true; });
+    o.castShadow=!on; });
 }
 function drafts(dt){
   for(var a=0;a<cars.length;a++){ var c=cars[a]; if(c.ctrl==='net') continue; var t=0;
@@ -2218,11 +2451,24 @@ function simulate(dt){
   }
   raceTime+=dt;
   if(pendingLaunch){ if(raceTime>0.25) pendingLaunch=false; else if(player.throttle>0.3){ pendingLaunch=false; launch(); } }
-  for(var k=0;k<cars.length;k++){ var c=cars[k]; if(c.ctrl==='net') continue; if(c.ctrl==='player'&&!c.auto) playerControl(c,dt); else aiControl(c,dt); stepCar(c,dt); }
+  for(var k=0;k<cars.length;k++){ var c=cars[k]; if(c.ctrl==='net'){ c.rebondImm=Math.max(0,(c.rebondImm||0)-dt); continue; } majCapacite(c,dt); c.rebondImm=Math.max(0,c.rebondImm-dt);
+    if(c.ctrl==='player'&&!c.auto) playerControl(c,dt); else { aiControl(c,dt); capaciteBot(c,dt); } stepCar(c,dt); }
   collide(); drafts(dt);
 }
 
 /* ================= HUD ================= */
+/* indicateur de la capacité spéciale (HUD + bouton tactile) : PRÊT, ACTIF ou secondes avant recharge */
+var capaPrec='';
+function majHudCapacite(c){
+  var k=capaciteDe(c), C=CAPACITES[k], box=$('capaBox'), tb=$('tSpecial');
+  box.hidden=!C; tb.hidden=!C; if(!C) return;
+  var actif=c.capT>0, pret=c.capCd<=0&&state==='race', r=actif?c.capT/Math.max(0.01,C.duree):(c.capCd<=0?1:clamp(1-c.capCd/Math.max(0.01,C.recharge),0,1));
+  var txt=actif?'ACTIF':(c.capCd<=0?'PRÊT':Math.ceil(c.capCd)+' s'), cle=k+txt+(pret?1:0);
+  $('capaFill').style.width=(r*100).toFixed(0)+'%'; tb.style.setProperty('--p',r.toFixed(3));
+  if(cle!==capaPrec){ capaPrec=cle; $('capaNom').textContent=C.nom; $('capaEtat').textContent=txt;
+    box.classList.toggle('actif',actif); box.classList.toggle('pret',pret); tb.classList.toggle('actif',actif); tb.classList.toggle('pret',pret);
+    tb.textContent=actif?C.nom:(c.capCd<=0?C.nom:Math.ceil(c.capCd)+' s'); }
+}
 var lightsOn=0, bannerT=0;
 function setLights(n){ lightsOn=n; var el=$('lights').children; for(var i=0;i<el.length;i++) el[i].classList.toggle('on',i<n); }
 function banner(text,dur,cls){ var b=$('banner'); b.textContent=text; b.className=cls||''; bannerT=dur; b.style.opacity=text?1:0; }
@@ -2250,9 +2496,11 @@ function updateHUD(dt){
   $('rpmArc').setAttribute('stroke-dasharray',(fr*377).toFixed(1)+' 503');
   var leds=$('leds').children, lit=Math.round(clamp((fr-0.55)/0.42,0,1)*10);
   for(var i=0;i<10;i++){ leds[i].className=(i<lit?'on'+(i>=8?' r':(i>=5?' y':'')):''); }
-  var nOn=c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green;
+  var nOn=c.nitroOn&&(c.nitro>0||c.nitro2>0)&&c.throttle>0.1&&green;
   $('nitroFill').style.width=(c.nitro*100).toFixed(0)+'%'; $('nitroBox').classList.toggle('live',nOn);
-  var tg=(state==='race')?(c.drift?(c.driftT>2?'MINI-TURBO MAX':(c.driftT>1?'MINI-TURBO':'DÉRAPAGE')):c.padT>0?'BOOST':(nOn?'NITRO':(c.draft>0.5?'ASPIRATION':''))):'';
+  $('nitroBar2').hidden=!(c.nitro2>0); if(c.nitro2>0) $('nitroFill2').style.width=(c.nitro2*100).toFixed(0)+'%';
+  majHudCapacite(c);
+  var tg=(state==='race')?(c.drift?(c.driftT>2?'MINI-TURBO MAX':(c.driftT>1?'MINI-TURBO':'DÉRAPAGE')):c.fantome?'FANTÔME':c.rebond?'REBOND':c.padT>0?'BOOST':(nOn?'NITRO':(c.draft>0.5?'ASPIRATION':''))):'';
   if(tg!==lastTag){ lastTag=tg; $('tag').textContent=tg; $('tag').hidden=!tg; }
   $('tCur').textContent=fmt(green&&!c.finished?(c.laps>=0?raceTime-c.lapStart:raceTime):(c.finished?c.last:0));
   if(bannerT>0){ bannerT-=dt; if(bannerT<=0) $('banner').style.opacity=0; }
@@ -2333,8 +2581,9 @@ handlers.model=function(d){ var n=MODS.length||MODELES.length; opt.model=(opt.mo
 handlers.audio=function(){ openScreen('audio'); };
 handlers.board=function(){ lbIdx=opt.track; openScreen('board'); classementMenu(); };
 handlers.lbtrack=function(d){ lbIdx=(lbIdx+d+TRACKS.length)%TRACKS.length; classementMenu(); };
-handlers.menu=function(){ openScreen('menu'); };
-SCREENS.push('audio','board');
+handlers.menu=function(){ var d=curScreen&&curScreen.id; ouvrirSur('menu',{parametres:'parametres',board:'board',garage:'garage'}[d]||'start'); };
+handlers.parametres=function(){ var d=curScreen&&curScreen.id; ouvrirSur('parametres',{audio:'audio',gfx:'gfxs',touches:'touches'}[d]||'sound'); };
+SCREENS.push('audio','board','parametres');
 majReglages();
 /* ---- écran Graphismes ---- */
 var INFOS_QUALITE=['','Image à 50 %, sans ombres ni halo lumineux, très peu de décors : pour les PC les plus modestes.','Image à 70 %, sans ombres ni halo lumineux, moitié moins de décors : pour les PC sans carte graphique.','Image à 85 %, ombres simples, un peu moins de décors.','Tous les effets : pour les PC de jeu.'];
@@ -2390,29 +2639,159 @@ function pubEntreCourses(){
   pubSon(true); A.prepareInterstitial({adId:PUB_ENTRE_COURSES[pubPlateforme()],isTesting:PUB_TEST}).then(function(){ return A.showInterstitial(); }).catch(function(){ pubSon(false); });
 }
 
-/* ================= GARAGE : clés, déblocage et choix de la voiture ================= */
-var garage={choisi:SKINS[0].id,cles:0,acquis:{}}, gVu=0, gDepuis='menu';
-try{ var sgar=JSON.parse(localStorage.getItem('valmont_garage')||'null'); if(sgar){ garage.cles=Math.max(0,sgar.cles|0); garage.acquis=sgar.acquis||{}; if(typeof sgar.choisi==='string') garage.choisi=sgar.choisi; } }catch(e){}
-function sauverGarage(){ try{ localStorage.setItem('valmont_garage',JSON.stringify(garage)); }catch(e){} }
-function skinAcquis(k){ return !(k.prix>0)||!!garage.acquis[k.id]; }
-function skinActuel(){ for(var i=0;i<SKINS.length;i++) if(SKINS[i].id===garage.choisi&&skinAcquis(SKINS[i])) return SKINS[i]; return SKINS[0]; }
-/* met la voiture du joueur aux couleurs d'un skin ; definitif = c'est son choix (enregistré et envoyé aux autres joueurs) */
-function montrerSkin(k,definitif){
-  opt.color=k.pi; opt.model=clamp(k.modele|0,0,MODELES.length-1);
+/* ================= GARAGE : clés, déblocage, voiture et couleur ================= */
+/* garage.voiture = id du modèle choisi, garage.couleur = id de la couleur choisie,
+   garage.modeles = modèles débloqués, garage.acquis = couleurs débloquées (valables pour toutes les voitures) */
+var garage={voiture:VOITURES[0].id,couleur:COULEURS[0].id,cles:0,acquis:{},modeles:{}}, gVu=0, cVu=0, gDepuis='menu', gZone='grille';
+try{ var sgar=JSON.parse(localStorage.getItem('valmont_garage')||'null');
+  if(sgar){ garage.cles=Math.max(0,sgar.cles|0); garage.acquis=sgar.acquis||{}; garage.modeles=sgar.modeles||{};
+    if(typeof sgar.voiture==='string') garage.voiture=sgar.voiture;
+    if(typeof sgar.couleur==='string') garage.couleur=sgar.couleur;
+    else if(typeof sgar.choisi==='string'){   /* ancienne sauvegarde (une voiture = un modèle + une couleur) */
+      garage.couleur=sgar.choisi;
+      var ANC={jaune:1,vert:1,orange:1,violet:2,turquoise:2,carbone:2,or:2};   /* modèle de chaque ancien skin payant */
+      for(var ak in garage.acquis) if(garage.acquis[ak]&&ANC[ak]!=null) VOITURES.forEach(function(v){ if(v.modele===ANC[ak]) garage.modeles[v.id]=true; });
+      if(ANC[sgar.choisi]!=null) VOITURES.forEach(function(v){ if(v.modele===ANC[sgar.choisi]) garage.voiture=v.id; });
+    } } }catch(e){}
+function sauverGarage(){ try{ localStorage.setItem('valmont_garage',JSON.stringify({cles:garage.cles,acquis:garage.acquis,modeles:garage.modeles,voiture:garage.voiture,couleur:garage.couleur})); }catch(e){} }
+function voitureAcquise(v){ return !(v.prix>0)||!!garage.modeles[v.id]; }
+function couleurAcquise(c){ return !(c.prix>0)||!!garage.acquis[c.id]; }
+function idxVoiture(){ for(var i=0;i<VOITURES.length;i++) if(VOITURES[i].id===garage.voiture&&voitureAcquise(VOITURES[i])) return i; return 0; }
+function idxCouleur(){ for(var i=0;i<COULEURS.length;i++) if(COULEURS[i].id===garage.couleur&&couleurAcquise(COULEURS[i])) return i; return 0; }
+/* met la voiture du joueur avec ce modèle et cette couleur ; definitif = c'est son choix (enregistré et envoyé aux autres joueurs) */
+function montrerVoiture(vi,ci,definitif){
+  var v=VOITURES[vi]||VOITURES[0], c=COULEURS[ci]||COULEURS[0];
+  opt.color=c.pi; opt.model=clamp(v.modele|0,0,MODELES.length-1);
   if(player){ player.hex=PAINTS[opt.color][1]; paintCar(player.vis,player.hex); setMod(player,opt.model); }
-  if(definitif){ garage.choisi=k.id; sauverGarage(); saveOpt(); refreshOptLabels(); pushPresence(); refreshLobby(); }
+  if(definitif){ var autreCouleur=garage.couleur!==c.id; garage.voiture=v.id; garage.couleur=c.id; sauverGarage(); saveOpt(); refreshOptLabels(); pushPresence(); refreshLobby(); if(autreCouleur) photosVoitures(); }
 }
 function gagnerCles(n,pourquoi){ if(!(n>0)) return; garage.cles+=n; sauverGarage(); majGarage(); if(pourquoi) $('resSub').textContent+=' · +'+n+(n>1?' clés':' clé')+' ('+pourquoi+')'; }
+var SVG_CLE='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7 17a5 5 0 1 1 4.9-6H23v3h-2v3h-3v-3h-6.4A5 5 0 0 1 7 17zm0-3.2a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z"/></svg>';
+var SVG_CADENAS='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7 10V7a5 5 0 0 1 10 0v3h1.5A1.5 1.5 0 0 1 20 11.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 20.5v-9A1.5 1.5 0 0 1 5.5 10H7zm2.5 0h5V7a2.5 2.5 0 0 0-5 0v3z"/></svg>';
+var gConfirme='';   /* 'v1', 'c3'… : élément sur lequel on a appuyé une 1re fois pour le débloquer (il faut confirmer) */
+function nbCles(n){ return n+(n>1?' clés':' clé'); }
+
+/* ---- Photos des voitures pour les cases du garage ----
+   Chaque modèle est photographié dans le jeu, sous le même angle (3/4 avant), à la couleur choisie.
+   Réglages de la prise de vue : */
+var PHOTO_ANGLE=38;      /* angle autour de la voiture en degrés (0 = pile de face) */
+var PHOTO_HAUTEUR=20;    /* angle de la caméra au-dessus du sol en degrés */
+var PHOTO_RECUL=10;    /* distance de la caméra (plus grand = voiture plus petite dans la case) */
+var studio=null;
+function photosVoitures(){
+  if(!MODS||!MODS.length||!$('gGrille').children.length) return;
+  var W=640, H=400;
+  try{
+    if(!studio){
+      studio={scene:new THREE.Scene(), cam:new THREE.PerspectiveCamera(30,W/H,0.1,100), rt:new THREE.WebGLRenderTarget(W,H,{format:THREE.RGBAFormat}),
+        grand:document.createElement('canvas'), petit:document.createElement('canvas'), px:new Uint8Array(W*H*4)};
+      studio.rt.texture.encoding=THREE.sRGBEncoding;
+      var cle=new THREE.DirectionalLight(0xffffff,1.7); cle.position.set(5,8,7);
+      var contre=new THREE.DirectionalLight(0xffd6ea,0.8); contre.position.set(-6,3,-6);
+      studio.scene.add(new THREE.HemisphereLight(0xe4ecff,0x40362f,0.55),cle,contre);
+      studio.grand.width=W; studio.grand.height=H;
+      var a=PHOTO_ANGLE*Math.PI/180, e=PHOTO_HAUTEUR*Math.PI/180;
+      studio.cam.position.set(Math.sin(a)*Math.cos(e)*PHOTO_RECUL, 0.6+Math.sin(e)*PHOTO_RECUL, Math.cos(a)*Math.cos(e)*PHOTO_RECUL);
+      studio.cam.lookAt(0,0.62,0);
+    }
+    studio.scene.environment=scene.environment;
+    var tm=renderer.toneMapping, te=renderer.toneMappingExposure, oldRT=renderer.getRenderTarget(), cc=renderer.getClearColor(new THREE.Color()), ca=renderer.getClearAlpha();
+    renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.8; renderer.setClearColor(0x000000,0);
+    var hex=COULEURS[idxCouleur()].couleur, gg=studio.grand.getContext('2d'), gp=studio.petit.getContext('2d'), img=gg.createImageData(W,H);
+    VOITURES.forEach(function(v,i){
+      var M=MODS[clamp(v.modele|0,0,MODS.length-1)]; if(!M) return;
+      var faux={hex:hex,vis:{group:new THREE.Group(),chassis:new THREE.Group(),wheels:[],pivots:[],paint:{color:new THREE.Color()},stripe:{color:new THREE.Color()},under:{material:{color:new THREE.Color()}}}};
+      poserModele(faux,M); studio.scene.add(faux.vis.group);
+      renderer.setRenderTarget(studio.rt); renderer.clear(); renderer.render(studio.scene,studio.cam);
+      renderer.readRenderTargetPixels(studio.rt,0,0,W,H,studio.px);
+      studio.scene.remove(faux.vis.group); (faux.vis.palettes||[]).forEach(function(p){ p.tex.dispose(); });
+      for(var y=0;y<H;y++) img.data.set(studio.px.subarray((H-1-y)*W*4,(H-y)*W*4),y*W*4);   /* l'image arrive à l'envers */
+      gg.putImageData(img,0,0);
+      /* recadrage automatique sur la voiture (les pixels non transparents), avec une petite marge */
+      var x0=W,y0=H,x1=-1,y1=-1, d=img.data;
+      for(var yy=0;yy<H;yy++) for(var xx=0;xx<W;xx++) if(d[(yy*W+xx)*4+3]>10){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; }
+      if(x1<0){ x0=0;y0=0;x1=W-1;y1=H-1; }
+      var mg=6; x0=Math.max(0,x0-mg); y0=Math.max(0,y0-mg); x1=Math.min(W-1,x1+mg); y1=Math.min(H-1,y1+mg);
+      var cw=x1-x0+1, ch=y1-y0+1; studio.petit.width=Math.round(cw/2); studio.petit.height=Math.round(ch/2);
+      gp.clearRect(0,0,studio.petit.width,studio.petit.height); gp.drawImage(studio.grand,x0,y0,cw,ch,0,0,studio.petit.width,studio.petit.height);
+      var case_=$('gGrille').children[i], im=case_&&case_.querySelector('.gc-car'); if(im) im.src=studio.petit.toDataURL('image/png');
+    });
+    renderer.setRenderTarget(oldRT); renderer.toneMapping=tm; renderer.toneMappingExposure=te; renderer.setClearColor(cc,ca);
+  }catch(err){ console.warn('Photos du garage impossibles',err); }
+}
+
+/* ---- Statistiques : calculées avec les mêmes formules que la conduite (stepCar), puis multipliées par les stats de la voiture ----
+   Si tu changes la physique dans stepCar (12.5, 0.85, 0.0012, 24, nitro +9 pendant 3,4 s…), mets aussi ces chiffres à jour ici. */
+var STATS_BASE=(function(){
+  var f=0, t=0, dt=0.002, t100=0;
+  while(t<60){ var a=12.5*(1-0.85*Math.min(f/VT,1))-0.0012*f*f; f+=a*dt; t+=dt; if(!t100&&f*3.6>=100) t100=t; }
+  var vmax=f*3.6, g=100/3.6, d=0; while(g>0.6){ d+=g*dt; g+=(-24-0.0012*g*g)*dt; }
+  return {vitesse:vmax, acceleration:t100, freinage:d, adherence:15/9.81, nitro:9*3.4};
+})();
+/* chaque ligne : [clé, nom, valeur affichée, remplissage de la barre (0 à 1)] — les barres laissent de la place pour de futures voitures plus rapides */
+function lignesStats(v){
+  var m=v.stats||{}, k=function(n){ return m[n]!=null?m[n]:1; }, B=STATS_BASE, fr=function(x,n){ return x.toFixed(n).replace('.',','); };
+  var vit=B.vitesse*k('vitesse'), acc=B.acceleration/k('acceleration'), fre=B.freinage/k('freinage'), adh=B.adherence*k('adherence'), nit=B.nitro*k('nitro');
+  return [['Vitesse max',Math.round(vit)+' km/h',vit/300],
+          ['Accélération',fr(acc,1)+' s (0-100)',1.9/acc],
+          ['Freinage',Math.round(fre)+' m (100-0)',11/fre],
+          ['Adhérence',fr(adh,1)+' g',adh/2.2],
+          ['Nitro','+'+Math.round(nit/3.4)+' m/s² · '+fr(3.4*k('nitro'),1)+' s',nit/44]];
+}
+function majStats(){
+  var v=VOITURES[gVu]||VOITURES[0], h='';
+  lignesStats(v).forEach(function(l){ h+='<div class="st-ligne"><span>'+l[0]+'</span><i><b style="width:'+Math.round(clamp(l[2],0.04,1)*100)+'%"></b></i><em>'+l[1]+'</em></div>'; });
+  var C=CAPACITES[v.capacite]; if(C) h+='<div class="st-capa"><span>Capacité</span><b>'+C.nom+'</b><em>'+C.desc+(C.duree?' · '+C.duree+' s':'')+' · recharge '+C.recharge+' s</em></div>';
+  $('gStatsNom').textContent=v.nom; $('gStatsLignes').innerHTML=h;
+}
+
+/* ---- construction de la grille et de la barre de couleurs (une seule fois au démarrage) ---- */
+function construireGarage(){
+  var g=$('gGrille'), bc=$('gCouleurs'); g.textContent=''; bc.textContent=''; $('gIcoCle').innerHTML=SVG_CLE;
+  VOITURES.forEach(function(v,i){
+    var b=document.createElement('button'); b.className='item gcase'; b.dataset.act='gcase'; b.dataset.i=i;
+    b.innerHTML='<span class="gc-ico"><img class="gc-car" alt=""><i class="gc-cadenas">'+SVG_CADENAS+'</i></span><span class="gc-nom"></span><span class="gc-etat"></span>';
+    b.querySelector('.gc-nom').textContent=v.nom; g.appendChild(b);
+  });
+  COULEURS.forEach(function(c,i){
+    var b=document.createElement('button'); b.className='item coul'; b.dataset.act='gcoul'; b.dataset.i=i;
+    b.innerHTML='<span class="cl-prix"></span><span class="pastille" style="--c:#'+('000000'+c.couleur.toString(16)).slice(-6)+'"><i>'+SVG_CADENAS+'</i></span>';
+    b.title=c.nom; bc.appendChild(b);
+  });
+}
 function majGarage(){
-  var k=SKINS[gVu]||SKINS[0], a=skinAcquis(k), txt=garage.cles+(garage.cles>1?' clés':' clé');
-  $('vCles').textContent=$('vCles2').textContent=txt;
-  $('gCles').textContent='Tu as '+txt+'. Une victoire rapporte '+GARAGE_CLES_VICTOIRE+' clés, un podium '+GARAGE_CLES_PODIUM+'.';
-  $('gNom').textContent=k.nom+' ('+(gVu+1)+'/'+SKINS.length+')';
-  var act=$('gAction'), manque=k.prix-garage.cles;
-  act.textContent=a?(k.id===skinActuel().id?'Voiture choisie ✓':'Choisir cette voiture'):(manque<=0?'Débloquer pour '+k.prix+(k.prix>1?' clés':' clé'):'Verrouillée : '+k.prix+(k.prix>1?' clés':' clé'));
-  $('gInfo').textContent=a?'':(manque>0?'Il te manque '+manque+(manque>1?' clés.':' clé.'):'Tu as assez de clés pour cette voiture.');
-  $('gPub').hidden=!pubDispo(); $('gPubGain').textContent='+'+GARAGE_CLES_PUB+(GARAGE_CLES_PUB>1?' clés':' clé');
+  var vi=idxVoiture(), ci=idxCouleur(), txt=nbCles(garage.cles);
+  $('vCles').textContent=$('vCles2').textContent=VOITURES[vi].nom+' · '+COULEURS[ci].nom+' · '+txt;
+  $('gCles').textContent=txt; $('gGains').textContent='Victoire +'+GARAGE_CLES_VICTOIRE+' · Podium +'+GARAGE_CLES_PODIUM;
+  Array.prototype.forEach.call($('gGrille').children,function(b){
+    var i=+b.dataset.i, v=VOITURES[i], a=voitureAcquise(v);
+    b.classList.toggle('verrou',!a); b.classList.toggle('choisie',a&&i===vi); b.classList.toggle('abordable',!a&&garage.cles>=v.prix);
+    b.querySelector('.gc-etat').innerHTML=a?(i===vi?'Choisie':''):SVG_CLE+'<b>'+v.prix+'</b>';
+  });
+  Array.prototype.forEach.call($('gCouleurs').children,function(b){
+    var i=+b.dataset.i, c=COULEURS[i], a=couleurAcquise(c);
+    b.classList.toggle('verrou',!a); b.classList.toggle('choisie',a&&i===ci); b.classList.toggle('abordable',!a&&garage.cles>=c.prix);
+    b.querySelector('.cl-prix').innerHTML=a?'':SVG_CLE+'<b>'+c.prix+'</b>';
+  });
+  /* fiche : la voiture ou la couleur sous la sélection */
+  var el=gZone==='couleurs'?COULEURS[cVu]:VOITURES[gVu], cle=(gZone==='couleurs'?'c':'v')+(gZone==='couleurs'?cVu:gVu);
+  var acq=gZone==='couleurs'?couleurAcquise(el):voitureAcquise(el), actuel=gZone==='couleurs'?cVu===ci:gVu===vi, mot=gZone==='couleurs'?'couleur':'voiture', manque=el.prix-garage.cles;
+  $('gNom').textContent=el.nom;
+  $('gInfo').textContent=acq?(actuel?(gZone==='couleurs'?'Ta couleur actuelle.':'Ta voiture actuelle.'):'Débloquée · appuie pour choisir cette '+mot+'.')
+    :(gConfirme===cle?'Appuie encore pour confirmer : '+nbCles(el.prix)+'.'
+    :(manque>0?'Verrouillée · '+nbCles(el.prix)+' · il te manque '+nbCles(manque)+'.':'Verrouillée · appuie pour la débloquer ('+nbCles(el.prix)+').'));
+  $('gPub').hidden=!pubDispo(); $('gPubGain').textContent='+'+nbCles(GARAGE_CLES_PUB);
   $('gConf').hidden=!(pubs.plugin&&pubs.options);
+  majStats();
+}
+/* quand la sélection arrive sur une case ou une couleur : aperçu en 3D (sans rien enregistrer) */
+function garageFocus(el){
+  if(!el) return;
+  var cs=el.classList.contains('gcase'), cl=el.classList.contains('coul'); if(!cs&&!cl) return;
+  var i=+el.dataset.i, z=cs?'grille':'couleurs';
+  if(z===gZone&&i===(cs?gVu:cVu)) return;
+  gZone=z; if(cs) gVu=i; else cVu=i; gConfirme='';
+  montrerVoiture(gVu,cVu,false); majGarage();
 }
 /* appelé à l'affichage des résultats : clés selon la place, puis éventuelle pub entre deux courses */
 function finDeCourse(){
@@ -2420,18 +2799,27 @@ function finDeCourse(){
   if(nb>=2){ if(place===1) gagnerCles(GARAGE_CLES_VICTOIRE,'victoire'); else if(place<=3&&nb>=4) gagnerCles(GARAGE_CLES_PODIUM,'podium'); }
   pubEntreCourses();
 }
-OPTS.skin=OPTS.gvoir=1;
-handlers.skin=function(d){ var L=SKINS.filter(skinAcquis), i=L.indexOf(skinActuel()); montrerSkin(L[(i+d+L.length)%L.length],true); };
-handlers.garage=function(){ gDepuis=curScreen?curScreen.id:'menu'; gVu=Math.max(0,SKINS.indexOf(skinActuel())); majGarage(); openScreen('garage'); };
-handlers.gvoir=function(d){ gVu=(gVu+d+SKINS.length)%SKINS.length; montrerSkin(SKINS[gVu],false); majGarage(); };
-handlers.gchoisir=function(){ var k=SKINS[gVu];
-  if(!skinAcquis(k)){ if(garage.cles<k.prix){ majGarage(); return; } garage.cles-=k.prix; garage.acquis[k.id]=true; vibrer(1,200); blip(1320,0.3,0.1); }
-  montrerSkin(k,true); majGarage(); };
+handlers.garage=function(){ gDepuis=curScreen?curScreen.id:'menu'; gConfirme='';
+  gVu=-1; cVu=idxCouleur(); gZone='grille'; openScreen('garage');
+  var it=itemsOf(); setFocus(it.indexOf($('gGrille').children[idxVoiture()])); majGarage(); };
+/* acheter (2 appuis pour confirmer) ; renvoie true si l'élément est débloqué */
+function payer(el,cle,acquis,dejaAcquis){
+  if(dejaAcquis) return true;
+  if(garage.cles<el.prix){ gConfirme=''; majGarage(); return false; }
+  if(gConfirme!==cle){ gConfirme=cle; majGarage(); return false; }
+  garage.cles-=el.prix; acquis[el.id]=true; gConfirme=''; vibrer(1,200); blip(1320,0.3,0.1); return true;
+}
+handlers.gcase=function(d,el){ var i=+el.dataset.i, v=VOITURES[i]; gVu=i; gZone='grille';
+  if(!payer(v,'v'+i,garage.modeles,voitureAcquise(v))) return;
+  cVu=idxCouleur(); montrerVoiture(i,cVu,true); majGarage(); };
+handlers.gcoul=function(d,el){ var i=+el.dataset.i, c=COULEURS[i]; cVu=i; gZone='couleurs';
+  if(!payer(c,'c'+i,garage.acquis,couleurAcquise(c))) return;
+  montrerVoiture(idxVoiture(),i,true); majGarage(); };
 handlers.gpub=function(){ pubRecompense(function(ok){ if(ok){ gagnerCles(GARAGE_CLES_PUB); blip(1200,0.18,0.07); } else $('gInfo').textContent='Pas de clé : la pub n\'était pas disponible ou n\'a pas été regardée jusqu\'au bout.'; }); };
 handlers.gconf=function(){ try{ pubs.plugin.showPrivacyOptionsForm(); }catch(e){} };
-handlers.gretour=function(){ montrerSkin(skinActuel(),false); openScreen(gDepuis==='lobby'?'lobby':'menu'); };
+handlers.gretour=function(){ montrerVoiture(idxVoiture(),idxCouleur(),false); gConfirme=''; ouvrirSur(gDepuis==='lobby'?'lobby':'menu','garage'); };
 SCREENS.push('garage');
-montrerSkin(skinActuel(),false); refreshOptLabels(); majGarage(); pubInit();
+construireGarage(); gVu=idxVoiture(); cVu=idxCouleur(); montrerVoiture(gVu,cVu,false); refreshOptLabels(); majGarage(); pubInit(); photosVoitures();
 handlers.touches=function(){ tkAttente=null; $('tkInfo').textContent='Choisis une action, puis appuie sur la nouvelle touche. Les flèches du clavier dirigent toujours la voiture.'; majTouches(); openScreen('touches'); };
 Object.keys(TOUCHES_ORIGINE).forEach(function(a){ handlers['tk_'+a]=function(){ tkAttente=a; $('tkInfo').textContent='Appuie sur la nouvelle touche (Échap pour annuler).'; majTouches(); }; });
 handlers.tk_defaut=function(){ for(var k in TOUCHES_ORIGINE) tk[k]=TOUCHES_ORIGINE[k]; tkAttente=null; sauverTouches(); majTouches(); $('tkInfo').textContent='Touches d\'origine rétablies.'; };
@@ -2779,7 +3167,7 @@ majGfx();
   var lignes=null, ligI=0, ligT=0;
   function majLignes(dt){
     var c=player, cible=0;
-    if(LIGNES_VITESSE>0&&c&&state==='race'&&!curScreen){ var boost=c.padT>0||(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green); cible=boost?1:clamp((Math.abs(c.f)-70)/14,0,1)*0.3; }
+    if(LIGNES_VITESSE>0&&c&&state==='race'&&!curScreen){ var boost=c.padT>0||(c.nitroOn&&(c.nitro>0||c.nitro2>0)&&c.throttle>0.1&&green); cible=boost?1:clamp((Math.abs(c.f)-70)/14,0,1)*0.3; }
     ligI+=(cible-ligI)*(1-Math.exp(-dt*(cible>ligI?12:3.5)));
     if(!lignes){ if(ligI<0.02) return; lignes=document.createElement('canvas'); lignes.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none'; var gl=document.getElementById('gl'); gl.parentNode.insertBefore(lignes,gl.nextSibling); }
     var g=lignes.getContext('2d');
@@ -2851,6 +3239,9 @@ function syncVisuals(dt,time){
   var beams=ENV.spot>0.3;
   for(var k=0;k<cars.length;k++){ var c=cars[k], v=c.vis;
     v.group.position.set(c.x,0,c.z); v.group.rotation.y=c.h; v.beam.visible=beams; v.cone.visible=beams; v.under.visible=ENV.night>0.5;
+    majFantome(c);
+    if(c.rebond){ if(!v._halo) v._halo=v.under.material.color.clone(); var pu=0.65+0.35*Math.sin(time*16); v.under.visible=true; v.under.material.color.setRGB(1.6*pu,0.3*pu,0.9*pu); }
+    else if(v._halo){ v.under.material.color.copy(v._halo); v._halo=null; }
     var aLat=c.f*c.yawRate;
     c.roll+=(clamp(aLat*0.0032,-0.07,0.07)-c.roll)*Math.min(1,dt*7); c.pitch+=(clamp(-c.acc*0.0019,-0.035,0.045)-c.pitch)*Math.min(1,dt*6);
     v.chassis.rotation.z=c.roll; v.chassis.rotation.x=c.pitch;
@@ -2862,7 +3253,7 @@ function syncVisuals(dt,time){
       if((c.slip>2.6&&sp>8&&!c.off)||(c.off&&sp>6)){ var side=(Math.random()<0.5?1:-1)*0.85, ex=c.x-sh*1.35+ch*side, ez=c.z-ch*1.35-sh*side;
         emit(ex,0.25,ez,c.vx*0.25+(Math.random()-0.5)*1.5,0.8+Math.random(),c.vz*0.25+(Math.random()-0.5)*1.5,c.off?1:0); }
       if(c.drift&&c.driftT>1){ var tn=c.driftT>2?3:2; for(var s3=-1;s3<=1;s3+=2) emit(c.x-sh*1.4+ch*0.9*s3,0.25,c.z-ch*1.4-sh*0.9*s3,(Math.random()-0.5)*3,1.5+Math.random()*2,(Math.random()-0.5)*3,tn); }
-      if(((c.nitroOn&&c.nitro>0&&(c.throttle>0.1||c.ctrl==='net'))||c.padT>0)&&sp>5){ for(var s2=-1;s2<=1;s2+=2) emit(c.x-sh*2.3+ch*0.45*s2,0.5,c.z-ch*2.3-sh*0.45*s2,c.vx*0.8,0.2,c.vz*0.8,2); } }
+      if(((c.nitroOn&&(c.nitro>0||c.nitro2>0)&&(c.throttle>0.1||c.ctrl==='net'))||c.padT>0)&&sp>5){ for(var s2=-1;s2<=1;s2+=2) emit(c.x-sh*2.3+ch*0.45*s2,0.5,c.z-ch*2.3-sh*0.45*s2,c.vx*0.8,0.2,c.vz*0.8,2); } }
   }
   updateParticles(dt);
   padTex.offset.y=-(time*1.6)%1;
@@ -2883,7 +3274,7 @@ function syncVisuals(dt,time){
 }
 var vueGarage=false;
 function updateCamera(dt,time){
-  var c=player, sp=clamp(Math.abs(c.f)/70,0,1), boosting=(c.padT>0||(c.nitroOn&&c.nitro>0&&c.throttle>0.1&&green));
+  var c=player, sp=clamp(Math.abs(c.f)/70,0,1), boosting=(c.padT>0||(c.nitroOn&&(c.nitro>0||c.nitro2>0)&&c.throttle>0.1&&green));
   var auGarage=state==='menu'&&curScreen&&curScreen.id==='garage';
   if(auGarage!==vueGarage){ vueGarage=auGarage; if(auGarage) camera.setViewOffset(BW,BH,-BW*0.17,0,BW,BH); else camera.clearViewOffset(); }
   if(auGarage){ var ag=time*0.35; camera.position.set(c.x+Math.cos(ag)*7.6,2.1,c.z+Math.sin(ag)*7.6); camera.lookAt(c.x,0.75,c.z); if(camera.fov!==42){ camera.fov=42; camera.updateProjectionMatrix(); } finalMat.uniforms.uBlur.value=0; return; }
@@ -2923,7 +3314,7 @@ function frame(now){
   if(!$('hud').hidden) updateHUD(dt);
   updateCamera(dt,time);
   sky.position.copy(camera.position);
-  updateAudio(smoothRpm,state==='menu'?0:player.throttle,Math.abs(player.f),player.slip,player.padT>0||(player.nitroOn&&player.nitro>0&&player.throttle>0.1&&green));
+  updateAudio(smoothRpm,state==='menu'?0:player.throttle,Math.abs(player.f),player.slip,player.padT>0||(player.nitroOn&&(player.nitro>0||player.nitro2>0)&&player.throttle>0.1&&green));
   renderFrame(time);
 }
 
